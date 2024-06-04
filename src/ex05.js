@@ -224,6 +224,8 @@ export default function example() {
       scene.add(sphere);
     }
 
+    
+
     // // 별빛을 표현할 재질 생성
     // const starMaterial = new THREE.PointsMaterial({
     //     color: 0xffffff, // 별빛 색상
