@@ -107,7 +107,7 @@ export default function example() {
             room.scale.set(0.04, 0.03, 0.03);
             scene.add(room);
 
-            
+            hideLoadingScreen();
         }else {
             console.error('GLTF 파일 로드 오류: scene이 없습니다.');
         }
@@ -142,8 +142,6 @@ export default function example() {
         tree.position.set(-4, 0.5, -3);
         tree.scale.set(0.5, 0.5, 0.5);
         scene.add(tree);
-
-        hideLoadingScreen();
 
     }, undefined, (error) => {
         console.error('GLTF 파일 로드 오류', error);
@@ -197,18 +195,17 @@ export default function example() {
     scene.add(pointLightHelper2);
 
     // 크리스마스 전구 
-    // Create tree lights in a spiral pattern
-    const numLights = 50; // Reduced number of lights
+    const numLights = 50; 
     const lightColors = [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0xee82ee]; // Different colors (rainbow order)
-    const treeHeight = 3.5; // Further reduced tree height
-    const treeRadius = 2; // Increased tree radius
+    const treeHeight = 3.5; 
+    const treeRadius = 2; 
     const turns = 4;
     const offsetX = -4.2;
     const offsetY = 1.9;
     const offsetZ = -2.3;
 
     for (let i = 0; i < numLights; i++) {
-      const color = lightColors[i % lightColors.length]; // Use colors in a sequential pattern
+      const color = lightColors[i % lightColors.length]; 
       const light = new THREE.PointLight(color, 1, 5);
 
       const t = i / numLights;
@@ -220,7 +217,6 @@ export default function example() {
       light.position.set(x, y, z);
       scene.add(light);
 
-      // Create a small sphere to represent the light
       const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
       const sphereMaterial = new THREE.MeshBasicMaterial({ color });
       const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
@@ -228,34 +224,56 @@ export default function example() {
       scene.add(sphere);
     }
 
-    // 별빛을 표현할 재질 생성
-    const starMaterial = new THREE.PointsMaterial({
-        color: 0xffffff, // 별빛 색상
-        size: 0.3 // 별빛 크기
-    });
+    // // 별빛을 표현할 재질 생성
+    // const starMaterial = new THREE.PointsMaterial({
+    //     color: 0xffffff, // 별빛 색상
+    //     size: 0.3 // 별빛 크기
+    // });
 
-    // 별빛 점들 생성
-    const starGeometry = new THREE.BufferGeometry();
+    // // 별빛 점들 생성
+    // const starGeometry = new THREE.BufferGeometry();
 
-    const stars = new THREE.Points(starGeometry, starMaterial);
-        // 버퍼 속성 생성
-    const positions = new Float32Array(1000 * 3); // 1000개의 점 * 3차원 좌표 (x, y, z)
-    starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    // const stars = new THREE.Points(starGeometry, starMaterial);
+    //     // 버퍼 속성 생성
+    // const positions = new Float32Array(1000 * 3); // 1000개의 점 * 3차원 좌표 (x, y, z)
+    // starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    // 별빛을 생성하고 버퍼 속성에 추가하는 반복문
-    for (let i = 0; i < 1000; i++) {
-        const star = new THREE.Vector3(
-            Math.random() * 600 - 300, // x 좌표
-            Math.random() * 600 - 300, // y 좌표
-            Math.random() * 600 - 300  // z 좌표
-        );
-        positions[i * 3] = star.x;
-        positions[i * 3 + 1] = star.y;
-        positions[i * 3 + 2] = star.z;
+    // // 별빛을 생성하고 버퍼 속성에 추가하는 반복문
+    // for (let i = 0; i < 1000; i++) {
+    //     const star = new THREE.Vector3(
+    //         Math.random() * 600 - 300, // x 좌표
+    //         Math.random() * 600 - 300, // y 좌표
+    //         Math.random() * 600 - 300  // z 좌표
+    //     );
+    //     positions[i * 3] = star.x;
+    //     positions[i * 3 + 1] = star.y;
+    //     positions[i * 3 + 2] = star.z;
+    // }
+
+    // // 씬에 별빛 객체 추가
+    // scene.add(stars);
+
+    // 눈송이효과
+    const snowflakes = [];
+
+    function createSnowflake() {
+        const geometry = new THREE.CircleGeometry(0.1, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const snowflake = new THREE.Mesh(geometry, material);
+
+        snowflake.position.x = Math.random() * 200 - 100; // x 좌표를 -100에서 100까지로 제한
+        snowflake.position.y = Math.random() * 200 - 100; // y 좌표를 -100에서 100까지로 제한
+        snowflake.position.z = Math.random() * 200 - 100; // z 좌표를 -100에서 100까지로 제한
+        snowflake.velocity = Math.random() * 0.5 + 0.1;
+
+        scene.add(snowflake);
+        snowflakes.push(snowflake);
     }
 
-    // 씬에 별빛 객체 추가
-    scene.add(stars);
+    // 눈송이 여러개 생성
+    for (let i = 0; i < 1000; i++) {
+        createSnowflake();
+    }
 
     // 사운드 매니저 생성
     const audioLoader = new THREE.AudioLoader();
@@ -266,7 +284,7 @@ export default function example() {
     audioLoader.load('/models/sounds/magic-of-christmas.mp3', function(buffer) {
         sound.setBuffer(buffer);
         sound.setRefDistance(20);
-        //sound.play(); // 화면 로드시 재생
+        sound.play(); // 화면 로드시 재생
     });
 
     //AxesHelper;
@@ -288,12 +306,20 @@ export default function example() {
 
         renderer.setAnimationLoop(draw);
 
-            // 별빛 회전 효과 추가
-        stars.rotation.x += 0.001;
-        stars.rotation.y += 0.001;
-
-
+        // 별빛 회전 효과 추가
+        //stars.rotation.x += 0.001;
+        //stars.rotation.y += 0.001;
         renderer.render(scene, camera);
+
+        // 각 눈송이마다 이동 처리
+        for (const snowflake of snowflakes) {
+            snowflake.position.y -= snowflake.velocity;
+                if (snowflake.position.y < -100) {
+                    snowflake.position.y = 100;
+                    snowflake.position.x = Math.random() * 200 - 100;
+                    snowflake.position.z = Math.random() * 200 - 100;
+                }
+        }
     }
 
     function setSize() {
@@ -308,11 +334,69 @@ export default function example() {
 
     draw();
 
-      // 로딩 화면을 숨기는 함수
-      function hideLoadingScreen() {
-        loadingScreen.style.display = 'none';
-        canvas.style.display = 'block';
-      }
+    // 로딩 화면을 숨기는 함수
+    function hideLoadingScreen() {
+    loadingScreen.style.display = 'none';
+    canvas.style.display = 'block';
+    }
+
+    window.addEventListener('click', onDocumentClick);
+
+    function onDocumentClick(event) {
+        event.preventDefault();
+
+        // 마우스의 클릭 위치를 정규화된 장치 좌표로 변환
+        const mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+        // Raycaster를 생성하여 클릭한 객체를 찾음
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        // 클릭된 객체들을 저장할 배열
+        const intersects = raycaster.intersectObject(room, true);
+
+        // 클릭된 객체가 있을 경우
+        if (intersects.length > 0) {
+            const clickedObject = intersects[0].object;
+
+            console.log(intersects[0].object);
+
+            // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
+            if (clickedObject.name === "pngfindcom-medieval-banner-png-1287972") {
+                // 이미지를 보여주는 함수 호출
+                showImageFullScreen();
+            }
+        }
+    }
+
+    // 전체 화면에 이미지를 보여주는 함수
+    function showImageFullScreen() {
+
+        // 이미지 요소가 이미 있는지 확인
+        if (document.getElementById('fullscreenImage')) {
+            // 이미지 요소가 이미 존재한다면 제거
+            document.getElementById('fullscreenImage').remove();
+            return; // 함수 종료
+        }
+        const imageUrl = '/models/letter.png'; // 보여줄 이미지의 URL
+        const imageElement = document.createElement('img');
+        imageElement.src = imageUrl;
+        imageElement.style.position = 'fixed';
+        imageElement.style.top = '50%';
+        imageElement.style.left = '50%';
+        imageElement.style.transform = 'translate(-50%, -50%)'; // 화면 중앙 정렬
+        imageElement.style.maxWidth = '70vw'; // 화면 너비의 70%까지만 사용
+        imageElement.style.maxHeight = '90vh'; // 화면 높이의 90%까지만 사용
+        imageElement.style.zIndex = '9999';
+        document.body.appendChild(imageElement);
+
+        // 이미지를 클릭했을 때 이미지가 사라지도록 설정
+        imageElement.addEventListener('click', () => {
+            imageElement.remove(); // 이미지 요소 제거
+        });
+    }
    
 }
 
