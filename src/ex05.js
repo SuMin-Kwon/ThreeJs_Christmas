@@ -286,7 +286,7 @@ export default function example() {
     audioLoader.load('/models/sounds/magic-of-christmas.mp3', function(buffer) {
         sound.setBuffer(buffer);
         sound.setRefDistance(20);
-        sound.play(); // 화면 로드시 재생
+        //sound.play(); // 화면 로드시 재생
     });
 
     //AxesHelper;
@@ -363,42 +363,105 @@ export default function example() {
         if (intersects.length > 0) {
             const clickedObject = intersects[0].object;
 
-            console.log(intersects[0].object);
+            console.log(intersects[0].object.name);
 
             // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
             if (clickedObject.name === "pngfindcom-medieval-banner-png-1287972") {
                 // 이미지를 보여주는 함수 호출
-                showImageFullScreen();
+                showImageFullScreen('/models/letter.png', 'default');
+            } else if (clickedObject.name === "Cube004"        || clickedObject.name.includes("Cube008") 
+                    || clickedObject.name.includes("Cube007")  || clickedObject.name.includes("Plane006") 
+                    || clickedObject.name.includes("Plane005") || clickedObject.name.includes("Plane007") 
+                    || clickedObject.name.includes("Plane009")) {
+                showImageFullScreen('/models/question01.png', 'custom');
             }
         }
     }
 
-    // 전체 화면에 이미지를 보여주는 함수
-    function showImageFullScreen() {
-
-        // 이미지 요소가 이미 있는지 확인
-        if (document.getElementById('fullscreenImage')) {
-            // 이미지 요소가 이미 존재한다면 제거
-            document.getElementById('fullscreenImage').remove();
-            return; // 함수 종료
-        }
-        const imageUrl = '/models/letter.png'; // 보여줄 이미지의 URL
-        const imageElement = document.createElement('img');
-        imageElement.src = imageUrl;
-        imageElement.style.position = 'fixed';
-        imageElement.style.top = '50%';
-        imageElement.style.left = '50%';
-        imageElement.style.transform = 'translate(-50%, -50%)'; // 화면 중앙 정렬
-        imageElement.style.maxWidth = '70vw'; // 화면 너비의 70%까지만 사용
-        imageElement.style.maxHeight = '90vh'; // 화면 높이의 90%까지만 사용
-        imageElement.style.zIndex = '9999';
-        document.body.appendChild(imageElement);
-
-        // 이미지를 클릭했을 때 이미지가 사라지도록 설정
-        imageElement.addEventListener('click', () => {
-            imageElement.remove(); // 이미지 요소 제거
-        });
+// 전체 화면에 이미지를 보여주는 함수
+function showImageFullScreen(imageUrl, styleType) {
+    // 기존 이미지 요소가 있는지 확인
+    if (document.getElementById('fullscreenImage')) {
+        document.getElementById('fullscreenImage').remove();
+        return;
     }
+
+    const imageElement = document.createElement('img');
+    imageElement.src = imageUrl;
+    imageElement.id = 'fullscreenImage';
+
+    if (styleType === 'custom') {
+        imageElement.style.maxWidth = '90vh';
+        imageElement.style.maxHeight = '70vw';
+
+        const yesButton = document.createElement('img');
+        yesButton.src = '/models/yesBtn.png';
+        yesButton.id = 'yesButton';
+        yesButton.style.position = 'absolute';
+        yesButton.style.zIndex = '10000';
+
+        const noButton = document.createElement('img');
+        noButton.src = '/models/noBtn.png';
+        noButton.id = 'noButton';
+        noButton.style.position = 'absolute';
+        noButton.style.zIndex = '10000';
+
+        document.body.appendChild(imageElement);
+        document.body.appendChild(yesButton);
+        document.body.appendChild(noButton);
+
+        const positionButtons = () => {
+            const imgRect = imageElement.getBoundingClientRect();
+            const btnSize = imgRect.width * 0.2;
+
+            yesButton.style.width = `${btnSize}px`;
+            yesButton.style.height = 'auto';
+            yesButton.style.left = `${imgRect.left + imgRect.width * 0.25 - btnSize / 2}px`;
+            yesButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
+
+            noButton.style.width = `${btnSize}px`;
+            noButton.style.height = 'auto';
+            noButton.style.left = `${imgRect.left + imgRect.width * 0.75 - btnSize / 2}px`;
+            noButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
+        };
+
+        imageElement.onload = positionButtons;
+        window.addEventListener('resize', positionButtons);
+
+        noButton.addEventListener('click', () => {
+            imageElement.remove();
+            yesButton.remove();
+            noButton.remove();
+            window.removeEventListener('resize', positionButtons);
+        });
+
+        yesButton.addEventListener('click', () => {
+            console.log('Yes button clicked');
+            imageElement.remove();
+            yesButton.remove();
+            noButton.remove();
+            window.removeEventListener('resize', positionButtons);
+        });
+
+    } else {
+        imageElement.style.maxWidth = '70vw';
+        imageElement.style.maxHeight = '90vh';
+        document.body.appendChild(imageElement);
+    }
+
+    imageElement.style.position = 'fixed';
+    imageElement.style.top = '50%';
+    imageElement.style.left = '50%';
+    imageElement.style.transform = 'translate(-50%, -50%)';
+    imageElement.style.zIndex = '9999';
+
+    imageElement.addEventListener('click', () => {
+        imageElement.remove();
+        if (document.getElementById('yesButton')) document.getElementById('yesButton').remove();
+        if (document.getElementById('noButton')) document.getElementById('noButton').remove();
+        window.removeEventListener('resize', positionButtons);
+    });
+}
    
 }
 
