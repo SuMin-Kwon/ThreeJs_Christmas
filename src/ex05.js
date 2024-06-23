@@ -259,13 +259,13 @@ export default function example() {
     const snowflakes = [];
 
     function createSnowflake() {
-        const geometry = new THREE.CircleGeometry(0.1, 32);
+        const geometry = new THREE.CircleGeometry(0.1, 20);
         const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const snowflake = new THREE.Mesh(geometry, material);
 
-        snowflake.position.x = Math.random() * 200 - 100; // x 좌표를 -100에서 100까지로 제한
-        snowflake.position.y = Math.random() * 200 - 100; // y 좌표를 -100에서 100까지로 제한
-        snowflake.position.z = Math.random() * 200 - 100; // z 좌표를 -100에서 100까지로 제한
+        snowflake.position.x = Math.random() * 100 - 50; // x 좌표를 -100에서 100까지로 제한
+        snowflake.position.y = Math.random() * 100 - 50; // y 좌표를 -100에서 100까지로 제한
+        snowflake.position.z = Math.random() * 100 - 50; // z 좌표를 -100에서 100까지로 제한
         snowflake.velocity = Math.random() * 0.5 + 0.1;
 
         scene.add(snowflake);
@@ -283,10 +283,37 @@ export default function example() {
     const sound = new THREE.PositionalAudio(listener);
 
     // 사운드 파일 로드
-    audioLoader.load('/models/sounds/magic-of-christmas.mp3', function(buffer) {
+    audioLoader.load('/models/sounds/joyful-snowman.mp3', function(buffer) {
         sound.setBuffer(buffer);
         sound.setRefDistance(20);
-        //sound.play(); // 화면 로드시 재생
+        sound.setLoop(true);
+        sound.setVolume(0.2);
+        sound.play(); // 화면 로드시 재생
+    });
+
+    // 오디오 객체를 씬에 추가
+    scene.add(sound);
+
+    // 사용자 인터랙션을 통한 재생/정지 버튼 생성
+    const button = document.createElement('button');
+    button.innerText = "Pause Sound"; // 디폴트로 재생 중이므로 정지 버튼 활성화
+    button.style.position = 'absolute';
+    button.style.top = '10px';
+    button.style.left = '10px';
+    button.style.zIndex = 1000;
+    document.body.appendChild(button);
+
+    let isPlaying = true; // 디폴트로 재생 중
+
+    button.addEventListener('click', function() {
+        if (isPlaying) {
+            sound.pause(); // 소리 정지
+            button.innerText = "Play Sound";
+        } else {
+            sound.play(); // 소리 재생
+            button.innerText = "Pause Sound";
+        }
+        isPlaying = !isPlaying;
     });
 
     //AxesHelper;
@@ -316,10 +343,10 @@ export default function example() {
         // 각 눈송이마다 이동 처리
         for (const snowflake of snowflakes) {
             snowflake.position.y -= snowflake.velocity;
-                if (snowflake.position.y < -100) {
-                    snowflake.position.y = 100;
-                    snowflake.position.x = Math.random() * 200 - 100;
-                    snowflake.position.z = Math.random() * 200 - 100;
+                if (snowflake.position.y < -50) {
+                    snowflake.position.y = 50;
+                    snowflake.position.x = Math.random() * 200 - 50;
+                    snowflake.position.z = Math.random() * 200 - 50;
                 }
         }
     }
