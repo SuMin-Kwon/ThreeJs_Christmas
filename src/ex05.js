@@ -146,6 +146,53 @@ export default function example() {
     }, undefined, (error) => {
         console.error('GLTF 파일 로드 오류', error);
     });
+
+
+    let giftBox;
+   gltfLoader.load("/models/giftBox_joinSpare.glb", (gltf) => {
+
+        if (gltf.scene) {
+            gltf.scene.castShadow = true;
+    
+            gltf.scene.traverse((child) => {
+
+                //Cylinder
+                if (    child.name == "rebon" 
+                    ||  child.name == "BezierCircle"
+                    ||  child.name == "BezierCircle001"
+                    ||  child.name == "BezierCircle002"
+                    ||  child.name == "BezierCircle003"  
+                ) {
+                    const rebonMaterial = child.material.clone();
+                    rebonMaterial.color.set("red");
+                    
+                    child.material = rebonMaterial;
+                    if (child.isMesh) {
+                        child.material = rebonMaterial;
+                    }
+                } else if (child.name == "cube" ){
+                    const cubeMaterial = child.material.clone();
+                    cubeMaterial.color.set("green");
+                    
+                    child.material = cubeMaterial;
+                    if (child.isMesh) {
+                        child.material = cubeMaterial;
+                    }
+                } 
+                child.castShadow = true; // 그림자 캐스팅
+                child.receiveShadow = true; // 그림자 수신
+                
+            });
+        }
+        giftBox = gltf.scene;
+        console.log(giftBox);
+        giftBox.position.set(0, 1, 0);
+        giftBox.scale.set(1, 1, 1);
+        scene.add(giftBox);
+
+    }, undefined, (error) => {
+        console.error('GLTF 파일 로드 오류', error);
+    });
     
 
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
@@ -283,7 +330,7 @@ export default function example() {
     const sound = new THREE.PositionalAudio(listener);
 
     // 사운드 파일 로드
-    audioLoader.load('/models/sounds/joyful-snowman.mp3', function(buffer) {
+    audioLoader.load('/sounds/joyful-snowman.mp3', function(buffer) {
         sound.setBuffer(buffer);
         sound.setRefDistance(20);
         sound.setLoop(true);
@@ -395,12 +442,12 @@ export default function example() {
             // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
             if (clickedObject.name === "pngfindcom-medieval-banner-png-1287972") {
                 // 이미지를 보여주는 함수 호출
-                showImageFullScreen('/models/letter.png', 'default');
+                showImageFullScreen('/images/letter.png', 'default');
             } else if (clickedObject.name === "Cube004"        || clickedObject.name.includes("Cube008") 
                     || clickedObject.name.includes("Cube007")  || clickedObject.name.includes("Plane006") 
                     || clickedObject.name.includes("Plane005") || clickedObject.name.includes("Plane007") 
                     || clickedObject.name.includes("Plane009")) {
-                showImageFullScreen('/models/question01.png', 'custom');
+                showImageFullScreen('/images/question01.png', 'custom');
             }
         }
     }
@@ -422,13 +469,13 @@ function showImageFullScreen(imageUrl, styleType) {
         imageElement.style.maxHeight = '70vw';
 
         const yesButton = document.createElement('img');
-        yesButton.src = '/models/yesBtn.png';
+        yesButton.src = '/images/yesBtn.png';
         yesButton.id = 'yesButton';
         yesButton.style.position = 'absolute';
         yesButton.style.zIndex = '10000';
 
         const noButton = document.createElement('img');
-        noButton.src = '/models/noBtn.png';
+        noButton.src = '/images/noBtn.png';
         noButton.id = 'noButton';
         noButton.style.position = 'absolute';
         noButton.style.zIndex = '10000';
@@ -437,7 +484,7 @@ function showImageFullScreen(imageUrl, styleType) {
         document.body.appendChild(yesButton);
         document.body.appendChild(noButton);
 
-        const positionButtons = () => {
+        function positionButtons(){
             const imgRect = imageElement.getBoundingClientRect();
             const btnSize = imgRect.width * 0.2;
 
