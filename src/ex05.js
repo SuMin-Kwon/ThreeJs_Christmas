@@ -36,10 +36,10 @@ export default function example() {
     scene.background = new THREE.Color("#04052F");
 
     // Camera (2D -> 40, 3D -> 75 )
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.x = 0;
-    camera.position.y = 7;
-    camera.position.z = 5;
+    camera.position.y = 12;
+    camera.position.z = 8;
     scene.add(camera);
 
     // Controls (카메라 시점 조절)
@@ -48,7 +48,7 @@ export default function example() {
     const ambientLight = new THREE.AmbientLight("#ffffff", 1000);
     scene.add(ambientLight); 
 
-    const spotLight1 = new THREE.SpotLight("#FFEAC9", 1000);
+    const spotLight1 = new THREE.SpotLight("#FF9E09", 1000);
     spotLight1.castShadow = true;
 
     spotLight1.position.set(0,15,0);
@@ -63,8 +63,8 @@ export default function example() {
     scene.add(spotLight1);
 
     // Add SpotLightHelpers
-    const spotLightHelper1 = new SpotLightHelper(spotLight1);
-    scene.add(spotLightHelper1);
+    // const spotLightHelper1 = new SpotLightHelper(spotLight1);
+    // scene.add(spotLightHelper1);
     
 
     // gltf loader (gltf 파일 불러오기)
@@ -196,7 +196,7 @@ export default function example() {
     
 
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
-    const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32); // 매개변수는 (상단 반지름, 하단 반지름, 높이, 세그먼트 수)입니다.
+    const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
 
     // 갈색으로 색칠된 재질을 만듭니다.
     const onematerial = new THREE.MeshBasicMaterial({ color: "#7C3E29" }); // 갈색 색상
@@ -231,45 +231,45 @@ export default function example() {
     // scene에 PointLight를 추가합니다.
     scene.add(pointLight);
 
-    const pointLightHelper = new THREE.PointLightHelper(pointLight);
-    scene.add(pointLightHelper);
+    // const pointLightHelper = new THREE.PointLightHelper(pointLight);
+    // scene.add(pointLightHelper);
 
     const pointLight2 = new THREE.PointLight("#FF9E09", 50, 100);
     pointLight2.position.set(2.2, 6, -3);
     scene.add(pointLight2);
 
-    const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
-    scene.add(pointLightHelper2);
+    // const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
+    // scene.add(pointLightHelper2);
 
     // 크리스마스 전구 
-    const numLights = 50; 
-    const lightColors = [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0xee82ee]; // Different colors (rainbow order)
-    const treeHeight = 3.5; 
-    const treeRadius = 2; 
-    const turns = 4;
-    const offsetX = -4.2;
-    const offsetY = 1.9;
-    const offsetZ = -2.3;
+    // const numLights = 50; 
+    // const lightColors = [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0xee82ee]; 
+    // const treeHeight = 3.5; 
+    // const treeRadius = 2; 
+    // const turns = 4;
+    // const offsetX = -4.2;
+    // const offsetY = 1.9;
+    // const offsetZ = -2.3;
 
-    for (let i = 0; i < numLights; i++) {
-      const color = lightColors[i % lightColors.length]; 
-      const light = new THREE.PointLight(color, 1, 5);
+    // for (let i = 0; i < numLights; i++) {
+    //   const color = lightColors[i % lightColors.length]; 
+    //   const light = new THREE.PointLight(color, 1, 5);
 
-      const t = i / numLights;
-      const angle = t * turns * Math.PI * 2;
-      const y = t * treeHeight + offsetY;
-      const x = Math.cos(angle) * (treeRadius * (1 - t)) + offsetX;
-      const z = Math.sin(angle) * (treeRadius * (1 - t)) + offsetZ;
+    //   const t = i / numLights;
+    //   const angle = t * turns * Math.PI * 2;
+    //   const y = t * treeHeight + offsetY;
+    //   const x = Math.cos(angle) * (treeRadius * (1 - t)) + offsetX;
+    //   const z = Math.sin(angle) * (treeRadius * (1 - t)) + offsetZ;
 
-      light.position.set(x, y, z);
-      scene.add(light);
+    //   light.position.set(x, y, z);
+    //   scene.add(light);
 
-      const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-      const sphereMaterial = new THREE.MeshBasicMaterial({ color });
-      const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-      sphere.position.set(x, y, z);
-      scene.add(sphere);
-    }
+    //   const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    //   const sphereMaterial = new THREE.MeshBasicMaterial({ color });
+    //   const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    //   sphere.position.set(x, y, z);
+    //   scene.add(sphere);
+    // }
 
     
 
@@ -303,26 +303,26 @@ export default function example() {
     // scene.add(stars);
 
     // 눈송이효과
-    const snowflakes = [];
+    // const snowflakes = [];
 
-    function createSnowflake() {
-        const geometry = new THREE.CircleGeometry(0.1, 20);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const snowflake = new THREE.Mesh(geometry, material);
+    // function createSnowflake() {
+    //     const geometry = new THREE.CircleGeometry(0.1, 20);
+    //     const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    //     const snowflake = new THREE.Mesh(geometry, material);
 
-        snowflake.position.x = Math.random() * 100 - 50; // x 좌표를 -100에서 100까지로 제한
-        snowflake.position.y = Math.random() * 100 - 50; // y 좌표를 -100에서 100까지로 제한
-        snowflake.position.z = Math.random() * 100 - 50; // z 좌표를 -100에서 100까지로 제한
-        snowflake.velocity = Math.random() * 0.5 + 0.1;
+    //     snowflake.position.x = Math.random() * 100 - 50; // x 좌표를 -100에서 100까지로 제한
+    //     snowflake.position.y = Math.random() * 100 - 50; // y 좌표를 -100에서 100까지로 제한
+    //     snowflake.position.z = Math.random() * 100 - 50; // z 좌표를 -100에서 100까지로 제한
+    //     snowflake.velocity = Math.random() * 0.5 + 0.1;
 
-        scene.add(snowflake);
-        snowflakes.push(snowflake);
-    }
+    //     scene.add(snowflake);
+    //     snowflakes.push(snowflake);
+    // }
 
-    // 눈송이 여러개 생성
-    for (let i = 0; i < 1000; i++) {
-        createSnowflake();
-    }
+    // // 눈송이 여러개 생성
+    // for (let i = 0; i < 1000; i++) {
+    //     createSnowflake();
+    // }
 
     // 사운드 매니저 생성
     const audioLoader = new THREE.AudioLoader();
@@ -330,7 +330,7 @@ export default function example() {
     const sound = new THREE.PositionalAudio(listener);
 
     // 사운드 파일 로드
-    audioLoader.load('/sounds/joyful-snowman.mp3', function(buffer) {
+    audioLoader.load('/models/sounds/joyful-snowman.mp3', function(buffer) {
         sound.setBuffer(buffer);
         sound.setRefDistance(20);
         sound.setLoop(true);
@@ -388,14 +388,14 @@ export default function example() {
         renderer.render(scene, camera);
 
         // 각 눈송이마다 이동 처리
-        for (const snowflake of snowflakes) {
-            snowflake.position.y -= snowflake.velocity;
-                if (snowflake.position.y < -50) {
-                    snowflake.position.y = 50;
-                    snowflake.position.x = Math.random() * 200 - 50;
-                    snowflake.position.z = Math.random() * 200 - 50;
-                }
-        }
+        // for (const snowflake of snowflakes) {
+        //     snowflake.position.y -= snowflake.velocity;
+        //         if (snowflake.position.y < -50) {
+        //             snowflake.position.y = 50;
+        //             snowflake.position.x = Math.random() * 200 - 50;
+        //             snowflake.position.z = Math.random() * 200 - 50;
+        //         }
+        // }
     }
 
     function setSize() {
@@ -442,12 +442,12 @@ export default function example() {
             // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
             if (clickedObject.name === "pngfindcom-medieval-banner-png-1287972") {
                 // 이미지를 보여주는 함수 호출
-                showImageFullScreen('/images/letter.png', 'default');
+                showImageFullScreen('/models/letter.png', 'default');
             } else if (clickedObject.name === "Cube004"        || clickedObject.name.includes("Cube008") 
                     || clickedObject.name.includes("Cube007")  || clickedObject.name.includes("Plane006") 
                     || clickedObject.name.includes("Plane005") || clickedObject.name.includes("Plane007") 
                     || clickedObject.name.includes("Plane009")) {
-                showImageFullScreen('/images/question01.png', 'custom');
+                showImageFullScreen('/models/question01.png', 'custom');
             }
         }
     }
@@ -469,13 +469,13 @@ function showImageFullScreen(imageUrl, styleType) {
         imageElement.style.maxHeight = '70vw';
 
         const yesButton = document.createElement('img');
-        yesButton.src = '/images/yesBtn.png';
+        yesButton.src = '/models/yesBtn.png';
         yesButton.id = 'yesButton';
         yesButton.style.position = 'absolute';
         yesButton.style.zIndex = '10000';
 
         const noButton = document.createElement('img');
-        noButton.src = '/images/noBtn.png';
+        noButton.src = '/models/noBtn.png';
         noButton.id = 'noButton';
         noButton.style.position = 'absolute';
         noButton.style.zIndex = '10000';
