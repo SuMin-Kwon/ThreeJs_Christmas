@@ -38,12 +38,28 @@ export default function example() {
     // Camera (2D -> 40, 3D -> 75 )
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.x = 0;
-    camera.position.y = 12;
+    camera.position.y = 13;
     camera.position.z = 8;
     scene.add(camera);
 
     // Controls (카메라 시점 조절)
     const controls = new OrbitControls(camera, renderer.domElement);
+
+    controls.enableDamping = true; // 관성 효과 활성화
+    controls.dampingFactor = 0.5; // 관성의 정도
+
+    // 회전 범위 설정
+    controls.minAzimuthAngle = 0 ; // -90도 -Math.PI / 2
+    controls.maxAzimuthAngle = Math.PI / 2;  // 90도
+
+    // 회전 비활성화
+    // controls.enableRotate = false;
+
+    // 카메라가 타겟에 가까워질 수 있는 최소 거리 설정
+    controls.minDistance = 10;
+
+    // 카메라가 타겟으로부터 멀어질 수 있는 최대 거리 설정
+    controls.maxDistance = 20;
 
     const ambientLight = new THREE.AmbientLight("#ffffff", 1000);
     scene.add(ambientLight); 
@@ -72,6 +88,7 @@ export default function example() {
     const gltfLoader = new GLTFLoader();
 
     let room;
+    let letter;
     gltfLoader.load("/models/odomak.glb", (gltf) => {
         if (gltf.scene) {
             gltf.scene.castShadow = true;
@@ -79,19 +96,44 @@ export default function example() {
             gltf.scene.traverse((child) => {
                 //console.log(child);
                 if (child.name === "Plane013"
-                        ||child.name === "Plane009" 
-                        || child.name === "Plane010"
-                        || child.name === "Plane011"
+                        //||child.name === "Plane009"   //원통
+                        || child.name === "Cube005"     //벽돌
+                        || child.name === "Cube006"     //창문 반사효과
+                        || child.name === "pngfindcom-medieval-banner-png-1287972"
+                        || child.name === "Cube010"     //창문 옆 횟불
+                        || child.name === "Cylinder003"
+                        || child.name === "Cylinder005"
+                        //|| child.name === "Plane010"
+                        //|| child.name === "Plane011"
                 ) {
-
                     child.visible = false;
-                } else if(child.name === "Plane" 
-                        
-                        || child.name === "Cube007"   ){
+                } else if( child.name === "Cube007"     //벽면
+                        || child.name === "Plane"       //판자
+                        || child.name === "Plane001"    //판자1
+                        || child.name === "Plane002"    //판자2
+                        || child.name === "Plane003"    //판자3
+                        || child.name === "Plane004"    //판자4
+                        || child.name === "Plane005"    //판자5
+                ){    // 벽면
+                    // 현재 위치를 저장
+                    const originalPosition = child.position.clone();
 
-                            child.castShadow = true; // 그림자 캐스팅
-                            child.receiveShadow = true; // 그림자 수신
-                          
+                    // x축 스케일을 1.5배로 늘림
+                    const scaleFactor = 1.5;
+                    child.scale.x *= scaleFactor;
+
+                    // 새로운 경계 상자를 계산
+                    const box = new THREE.Box3().setFromObject(child);
+                    const size = box.getSize(new THREE.Vector3());
+
+                    // x축 중심을 기준으로 위치 조정
+                    child.position.set(
+                        originalPosition.x + (size.x / 2 - (size.x / scaleFactor) / 2),
+                        originalPosition.y,
+                        originalPosition.z
+                    );
+                    child.castShadow = true; // 그림자 캐스팅
+                    child.receiveShadow = true; // 그림자 수신
                 }
                  else {
                     child.castShadow = true; // 그림자 캐스팅
@@ -102,9 +144,8 @@ export default function example() {
 
             // callback 함수
             room = gltf.scene;
-            console.log(room);
-            room.position.set(15, 1, 13);
-            room.scale.set(0.04, 0.03, 0.03);
+            room.position.set(10, 1, 13);
+            room.scale.set(0.03, 0.03, 0.03);
             scene.add(room);
 
             hideLoadingScreen();
@@ -139,7 +180,7 @@ export default function example() {
         }
         tree = gltf.scene;
         console.log(tree);
-        tree.position.set(-4, 0.5, -3);
+        tree.position.set(5, 0.5, -3);
         tree.scale.set(0.5, 0.5, 0.5);
         scene.add(tree);
 
@@ -149,7 +190,12 @@ export default function example() {
 
 
     let giftBox;
-   gltfLoader.load("/models/giftBox_joinSpare.glb", (gltf) => {
+    let giftBoxPosition = [
+        { "x" : 0.3 , "y" : 2.55 , "z" : -1.6 }, // 책상위 좌표
+        { "x" : 4   , "y" : 1    , "z" : 0    }, // 트리옆
+        { "x" : -4.5, "y" : 2.55 , "z" : -1   }, // 술통 위
+    ]; 
+    gltfLoader.load("/models/giftBox_joinSpare.glb", (gltf) => {
 
         if (gltf.scene) {
             gltf.scene.castShadow = true;
@@ -186,14 +232,19 @@ export default function example() {
         }
         giftBox = gltf.scene;
         console.log(giftBox);
-        giftBox.position.set(0, 1, 0);
-        giftBox.scale.set(1, 1, 1);
+        //giftBox.position.set(0.3, 2.55, -1.6);    // 책상위 좌표
+        //giftBox.position.set(4, 1, 0);            // 트리옆에
+        //giftBox.position.set(-4.5, 2.55, -1);     // 술통 위에
+        // 바닥을 클릭했을때는 바닥 좌표위에 올라가도록 설정 필요
+
+        giftBox.scale.set(0.7, 0.7, 0.7);
+        giftBox.visible = false;
         scene.add(giftBox);
 
     }, undefined, (error) => {
         console.error('GLTF 파일 로드 오류', error);
     });
-    
+
 
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
     const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
@@ -203,21 +254,10 @@ export default function example() {
 
     // 기둥의 메쉬를 생성합니다.
     const cylinder = new THREE.Mesh(onegeometry, onematerial);
-    cylinder.position.set(-4, 1, -2.5);
+    cylinder.position.set(5, 1.3, -2.5);
 
     // scene에 기둥을 추가합니다.
     scene.add(cylinder);
-
-    // 박스 생성
-    const geometry = new THREE.BoxGeometry(10, 0.5, 10); // 너비, 높이, 깊이
-    const material = new THREE.MeshBasicMaterial({color: "#3A2825"}); // 박스의 색상 설정
-    const box = new THREE.Mesh(geometry, material);
-    box.position.set(0,0,0);
-    box.castShadow = true; // 그림자 캐스팅
-    box.receiveShadow = true; // 그림자 수신
-
-    // 박스를 scene에 추가
-    scene.add(box);
 
 
     const pointLight = new THREE.PointLight("#FF9E09", 10, 100); // 흰색 광원, 강도 1, 거리 100
@@ -231,24 +271,24 @@ export default function example() {
     // scene에 PointLight를 추가합니다.
     scene.add(pointLight);
 
-    // const pointLightHelper = new THREE.PointLightHelper(pointLight);
-    // scene.add(pointLightHelper);
+    const pointLightHelper = new THREE.PointLightHelper(pointLight);
+    scene.add(pointLightHelper);
 
     const pointLight2 = new THREE.PointLight("#FF9E09", 50, 100);
     pointLight2.position.set(2.2, 6, -3);
     scene.add(pointLight2);
 
-    // const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
-    // scene.add(pointLightHelper2);
+    const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
+    scene.add(pointLightHelper2);
 
     // 크리스마스 전구 
-    // const numLights = 50; 
+    // const numLights = 30; 
     // const lightColors = [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0xee82ee]; 
     // const treeHeight = 3.5; 
     // const treeRadius = 2; 
-    // const turns = 4;
-    // const offsetX = -4.2;
-    // const offsetY = 1.9;
+    // const turns = 3;
+    // const offsetX = 4.7;
+    // const offsetY = 2;
     // const offsetZ = -2.3;
 
     // for (let i = 0; i < numLights; i++) {
@@ -264,14 +304,12 @@ export default function example() {
     //   light.position.set(x, y, z);
     //   scene.add(light);
 
-    //   const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    //   const sphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
     //   const sphereMaterial = new THREE.MeshBasicMaterial({ color });
     //   const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     //   sphere.position.set(x, y, z);
     //   scene.add(sphere);
     // }
-
-    
 
     // // 별빛을 표현할 재질 생성
     // const starMaterial = new THREE.PointsMaterial({
@@ -303,26 +341,26 @@ export default function example() {
     // scene.add(stars);
 
     // 눈송이효과
-    // const snowflakes = [];
+    const snowflakes = [];
 
-    // function createSnowflake() {
-    //     const geometry = new THREE.CircleGeometry(0.1, 20);
-    //     const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    //     const snowflake = new THREE.Mesh(geometry, material);
+    function createSnowflake() {
+        const geometry = new THREE.CircleGeometry(0.1, 20);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const snowflake = new THREE.Mesh(geometry, material);
 
-    //     snowflake.position.x = Math.random() * 100 - 50; // x 좌표를 -100에서 100까지로 제한
-    //     snowflake.position.y = Math.random() * 100 - 50; // y 좌표를 -100에서 100까지로 제한
-    //     snowflake.position.z = Math.random() * 100 - 50; // z 좌표를 -100에서 100까지로 제한
-    //     snowflake.velocity = Math.random() * 0.5 + 0.1;
+        snowflake.position.x = Math.random() * 100 - 50; // x 좌표를 -100에서 100까지로 제한
+        snowflake.position.y = Math.random() * 100 - 50; // y 좌표를 -100에서 100까지로 제한
+        snowflake.position.z = Math.random() * 100 - 50; // z 좌표를 -100에서 100까지로 제한
+        snowflake.velocity = Math.random() * 0.5 + 0.1;
 
-    //     scene.add(snowflake);
-    //     snowflakes.push(snowflake);
-    // }
+        scene.add(snowflake);
+        snowflakes.push(snowflake);
+    }
 
-    // // 눈송이 여러개 생성
-    // for (let i = 0; i < 1000; i++) {
-    //     createSnowflake();
-    // }
+    // 눈송이 여러개 생성
+    for (let i = 0; i < 2500; i++) {
+        createSnowflake();
+    }
 
     // 사운드 매니저 생성
     const audioLoader = new THREE.AudioLoader();
@@ -330,13 +368,15 @@ export default function example() {
     const sound = new THREE.PositionalAudio(listener);
 
     // 사운드 파일 로드
-    audioLoader.load('/models/sounds/joyful-snowman.mp3', function(buffer) {
+    audioLoader.load('/sounds/joyful-snowman.mp3', function(buffer) {
         sound.setBuffer(buffer);
         sound.setRefDistance(20);
         sound.setLoop(true);
         sound.setVolume(0.2);
         sound.play(); // 화면 로드시 재생
     });
+
+    camera.add(listener);
 
     // 오디오 객체를 씬에 추가
     scene.add(sound);
@@ -385,17 +425,18 @@ export default function example() {
         // 별빛 회전 효과 추가
         //stars.rotation.x += 0.001;
         //stars.rotation.y += 0.001;
+
         renderer.render(scene, camera);
 
-        // 각 눈송이마다 이동 처리
-        // for (const snowflake of snowflakes) {
-        //     snowflake.position.y -= snowflake.velocity;
-        //         if (snowflake.position.y < -50) {
-        //             snowflake.position.y = 50;
-        //             snowflake.position.x = Math.random() * 200 - 50;
-        //             snowflake.position.z = Math.random() * 200 - 50;
-        //         }
-        // }
+        //각 눈송이마다 이동 처리
+        for (const snowflake of snowflakes) {
+            snowflake.position.y -= snowflake.velocity;
+                if (snowflake.position.y < -50) {
+                    snowflake.position.y = 50;
+                    snowflake.position.x = Math.random() * 200 - 50;
+                    snowflake.position.z = Math.random() * 200 - 50;
+                }
+        }
     }
 
     function setSize() {
@@ -412,11 +453,42 @@ export default function example() {
 
     // 로딩 화면을 숨기는 함수
     function hideLoadingScreen() {
-    loadingScreen.style.display = 'none';
-    canvas.style.display = 'block';
+        loadingScreen.style.display = 'none';
+        canvas.style.display = 'block';
     }
 
-    window.addEventListener('click', onDocumentClick);
+    //window.addEventListener('click', onDocumentClick);
+
+    let isDragging = false;
+    let mouseDownTime = 0;
+
+    // 마우스 다운 이벤트 핸들러
+    function onDocumentMouseDown(event) {
+        isDragging = false;
+        mouseDownTime = Date.now();
+    }
+
+    // 마우스 무브 이벤트 핸들러
+    function onDocumentMouseMove(event) {
+        isDragging = true;
+    }
+
+    // 마우스 업 이벤트 핸들러
+    function onDocumentMouseUp(event) {
+        if (!isDragging) {
+            // 짧은 클릭인 경우에만 onDocumentClick 호출
+            onDocumentClick(event);
+        } else {
+            const clickDuration = Date.now() - mouseDownTime;
+            if (clickDuration < 200) { // 200ms 이하인 경우 짧은 클릭으로 간주
+                onDocumentClick(event);
+            }
+        }
+        isDragging = false;
+    }
+
+    // 클릭한 객체 저장 변수
+    let lastClickedObjectName = "";
 
     function onDocumentClick(event) {
         event.preventDefault();
@@ -440,102 +512,130 @@ export default function example() {
             console.log(intersects[0].object.name);
 
             // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
-            if (clickedObject.name === "pngfindcom-medieval-banner-png-1287972") {
+            if (clickedObject.name === "Plane007") {
                 // 이미지를 보여주는 함수 호출
-                showImageFullScreen('/models/letter.png', 'default');
+                showImageFullScreen('/images/letter.png', 'default');
             } else if (clickedObject.name === "Cube004"        || clickedObject.name.includes("Cube008") 
                     || clickedObject.name.includes("Cube007")  || clickedObject.name.includes("Plane006") 
                     || clickedObject.name.includes("Plane005") || clickedObject.name.includes("Plane007") 
                     || clickedObject.name.includes("Plane009")) {
-                showImageFullScreen('/models/question01.png', 'custom');
+                lastClickedObjectName = clickedObject;
+                showImageFullScreen('/images/question01.png', 'custom');
             }
         }
     }
 
-// 전체 화면에 이미지를 보여주는 함수
-function showImageFullScreen(imageUrl, styleType) {
-    // 기존 이미지 요소가 있는지 확인
-    if (document.getElementById('fullscreenImage')) {
-        document.getElementById('fullscreenImage').remove();
-        return;
+    // 버튼 위치를 조정하는 함수
+    function positionButtons(imageElement, yesButton, noButton) {
+        const imgRect = imageElement.getBoundingClientRect();
+        const btnSize = imgRect.width * 0.2;
+
+        yesButton.style.width = `${btnSize}px`;
+        yesButton.style.height = 'auto';
+        yesButton.style.left = `${imgRect.left + imgRect.width * 0.25 - btnSize / 2}px`;
+        yesButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
+
+        noButton.style.width = `${btnSize}px`;
+        noButton.style.height = 'auto';
+        noButton.style.left = `${imgRect.left + imgRect.width * 0.75 - btnSize / 2}px`;
+        noButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
     }
 
-    const imageElement = document.createElement('img');
-    imageElement.src = imageUrl;
-    imageElement.id = 'fullscreenImage';
+    // 전체 화면에 이미지를 보여주는 함수
+    function showImageFullScreen(imageUrl, styleType) {
+        // 기존 이미지 요소가 있는지 확인
+        if (document.getElementById('fullscreenImage')) {
+            return;
+        }
 
-    if (styleType === 'custom') {
-        imageElement.style.maxWidth = '90vh';
-        imageElement.style.maxHeight = '70vw';
+        const imageElement = document.createElement('img');
+        imageElement.src = imageUrl;
+        imageElement.id = 'fullscreenImage';
 
-        const yesButton = document.createElement('img');
-        yesButton.src = '/models/yesBtn.png';
-        yesButton.id = 'yesButton';
-        yesButton.style.position = 'absolute';
-        yesButton.style.zIndex = '10000';
+        if (styleType === 'custom') {
+            imageElement.style.maxWidth = '90vh';
+            imageElement.style.maxHeight = '70vw';
 
-        const noButton = document.createElement('img');
-        noButton.src = '/models/noBtn.png';
-        noButton.id = 'noButton';
-        noButton.style.position = 'absolute';
-        noButton.style.zIndex = '10000';
+            const yesButton = document.createElement('img');
+            yesButton.src = '/images/yesBtn.png';
+            yesButton.id = 'yesButton';
+            yesButton.style.position = 'absolute';
+            yesButton.style.zIndex = '10000';
 
-        document.body.appendChild(imageElement);
-        document.body.appendChild(yesButton);
-        document.body.appendChild(noButton);
+            const noButton = document.createElement('img');
+            noButton.src = '/images/noBtn.png';
+            noButton.id = 'noButton';
+            noButton.style.position = 'absolute';
+            noButton.style.zIndex = '10000';
 
-        function positionButtons(){
-            const imgRect = imageElement.getBoundingClientRect();
-            const btnSize = imgRect.width * 0.2;
+            document.body.appendChild(imageElement);
+            document.body.appendChild(yesButton);
+            document.body.appendChild(noButton);
 
-            yesButton.style.width = `${btnSize}px`;
-            yesButton.style.height = 'auto';
-            yesButton.style.left = `${imgRect.left + imgRect.width * 0.25 - btnSize / 2}px`;
-            yesButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
+            imageElement.onload = () => positionButtons(imageElement, yesButton, noButton);
+            window.addEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
 
-            noButton.style.width = `${btnSize}px`;
-            noButton.style.height = 'auto';
-            noButton.style.left = `${imgRect.left + imgRect.width * 0.75 - btnSize / 2}px`;
-            noButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
-        };
+            noButton.addEventListener('click', () => {
+                imageElement.remove();
+                yesButton.remove();
+                noButton.remove();
+                window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
+            });
 
-        imageElement.onload = positionButtons;
-        window.addEventListener('resize', positionButtons);
+            yesButton.addEventListener('click', () => {
+                console.log('Yes button clicked');
+                imageElement.remove();
+                yesButton.remove();
+                noButton.remove();
 
-        noButton.addEventListener('click', () => {
+                if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
+                    giftBox.visible = true;
+                    giftBox.position.set(giftBoxPosition[2].x,giftBoxPosition[2].y,giftBoxPosition[2].z);
+
+                    setTimeout(() => {
+
+                        const loadingImage = document.getElementById('loading-image');
+                        const loadingText = document.querySelector('.loading-text');
+                        // 로딩 이미지의 src 경로 변경
+                        loadingImage.src = '/images/giftGivingSuccess.gif'; // 새로운 로딩 이미지 경로로 변경
+
+                        // loading-text 숨기기
+                        loadingText.style.display = 'none';
+                        loadingScreen.style.display = 'block';
+                        canvas.style.display = 'none';
+                    }, 2000); // 2초 후에 실행
+                }
+                window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
+
+
+
+
+                
+            });
+
+        } else {
+            imageElement.style.maxWidth = '70vw';
+            imageElement.style.maxHeight = '90vh';
+            document.body.appendChild(imageElement);
+        }
+
+        imageElement.style.position = 'fixed';
+        imageElement.style.top = '50%';
+        imageElement.style.left = '50%';
+        imageElement.style.transform = 'translate(-50%, -50%)';
+        imageElement.style.zIndex = '9999';
+
+        imageElement.addEventListener('click', () => {
             imageElement.remove();
-            yesButton.remove();
-            noButton.remove();
-            window.removeEventListener('resize', positionButtons);
+            if (document.getElementById('yesButton')) document.getElementById('yesButton').remove();
+            if (document.getElementById('noButton')) document.getElementById('noButton').remove();
+            window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
         });
-
-        yesButton.addEventListener('click', () => {
-            console.log('Yes button clicked');
-            imageElement.remove();
-            yesButton.remove();
-            noButton.remove();
-            window.removeEventListener('resize', positionButtons);
-        });
-
-    } else {
-        imageElement.style.maxWidth = '70vw';
-        imageElement.style.maxHeight = '90vh';
-        document.body.appendChild(imageElement);
     }
 
-    imageElement.style.position = 'fixed';
-    imageElement.style.top = '50%';
-    imageElement.style.left = '50%';
-    imageElement.style.transform = 'translate(-50%, -50%)';
-    imageElement.style.zIndex = '9999';
-
-    imageElement.addEventListener('click', () => {
-        imageElement.remove();
-        if (document.getElementById('yesButton')) document.getElementById('yesButton').remove();
-        if (document.getElementById('noButton')) document.getElementById('noButton').remove();
-        window.removeEventListener('resize', positionButtons);
-    });
-}
    
+    document.addEventListener('mousedown', onDocumentMouseDown, false);
+    document.addEventListener('mousemove', onDocumentMouseMove, false);
+    document.addEventListener('mouseup', onDocumentMouseUp, false); 
 }
 
