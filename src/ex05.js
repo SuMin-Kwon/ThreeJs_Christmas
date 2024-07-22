@@ -38,8 +38,10 @@ export default function example() {
     // Camera (2D -> 40, 3D -> 75 )
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.x = 0;
-    camera.position.y = 13;
+    camera.position.y = 12;
     camera.position.z = 8;
+
+    //camera.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(camera);
 
     // Controls (카메라 시점 조절)
@@ -59,7 +61,7 @@ export default function example() {
     controls.minDistance = 10;
 
     // 카메라가 타겟으로부터 멀어질 수 있는 최대 거리 설정
-    controls.maxDistance = 20;
+    controls.maxDistance = 100;
 
     const ambientLight = new THREE.AmbientLight("#ffffff", 1000);
     scene.add(ambientLight); 
@@ -88,7 +90,6 @@ export default function example() {
     const gltfLoader = new GLTFLoader();
 
     let room;
-    let letter;
     gltfLoader.load("/models/odomak.glb", (gltf) => {
         if (gltf.scene) {
             gltf.scene.castShadow = true;
@@ -161,9 +162,8 @@ export default function example() {
 
         if (gltf.scene) {
             gltf.scene.castShadow = true;
-    
-            gltf.scene.traverse((child) => {
 
+            gltf.scene.traverse((child) => {
                 //Cylinder
                 if (child.name === "Cylinder"
                         ||child.name === "Cylinder001"
@@ -179,7 +179,6 @@ export default function example() {
             });
         }
         tree = gltf.scene;
-        console.log(tree);
         tree.position.set(5, 0.5, -3);
         tree.scale.set(0.5, 0.5, 0.5);
         scene.add(tree);
@@ -231,7 +230,6 @@ export default function example() {
             });
         }
         giftBox = gltf.scene;
-        console.log(giftBox);
         //giftBox.position.set(0.3, 2.55, -1.6);    // 책상위 좌표
         //giftBox.position.set(4, 1, 0);            // 트리옆에
         //giftBox.position.set(-4.5, 2.55, -1);     // 술통 위에
@@ -244,6 +242,46 @@ export default function example() {
     }, undefined, (error) => {
         console.error('GLTF 파일 로드 오류', error);
     });
+
+
+    // 산타
+    // let santa;
+    // gltfLoader.load("/models/santa_3D.glb", (gltf) => {
+
+    //     if (gltf.scene) {
+    //         gltf.scene.castShadow = true;
+    
+    //         console.log("산타 ==========================>");
+    //         console.log(gltf.scene.children);
+    //         gltf.scene.children[0].traverse((child) => {
+    //             // Cube028 귀, 코
+    //             // Cube028_1 얼굴
+    //             // Cube028_2 산타옷
+    //             // Cube028_3 수염, 모자꽁다리
+    //             // Cube028_4 벨트, 손발
+    //             // Cube028_5 밸트 고리
+    //                 console.log(`Child name: ${child.name}`);
+    //                 if (child.isMesh) {
+    //                     if (child.name === "Cube028" || child.name === "Cube028_1") {
+    //                         const rebonMaterial = child.material.clone();
+    //                         rebonMaterial.color.set("#f4d9cb");
+                            
+    //                         child.material = rebonMaterial;
+    //                         child.material.needsUpdate = true; // 재질 업데이트
+    //                     }
+    //                 child.castShadow = true; // 그림자 캐스팅
+    //                 child.receiveShadow = true; // 그림자 수신
+    //                 }
+    //             });
+    //         }
+    //     santa = gltf.scene.children[0];
+    //     console.log(santa);
+    //     santa.position.set(0, 2, 0);
+    //     scene.add(santa);
+
+    // }, undefined, (error) => {
+    //     console.error('GLTF 파일 로드 오류', error);
+    // });
 
 
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
@@ -596,6 +634,7 @@ export default function example() {
 
                         const loadingImage = document.getElementById('loading-image');
                         const loadingText = document.querySelector('.loading-text');
+
                         // 로딩 이미지의 src 경로 변경
                         loadingImage.src = '/images/giftGivingSuccess.gif'; // 새로운 로딩 이미지 경로로 변경
 
@@ -604,13 +643,25 @@ export default function example() {
                         loadingScreen.style.display = 'block';
                         canvas.style.display = 'none';
                     }, 2000); // 2초 후에 실행
+                } else {
+                    giftBox.visible = true;
+                    giftBox.position.set(giftBoxPosition[1].x,giftBoxPosition[1].y,giftBoxPosition[1].z);
+
+                    setTimeout(() => {
+
+                        const loadingImage = document.getElementById('loading-image');
+                        const loadingText = document.querySelector('.loading-text');
+
+                        // 로딩 이미지의 src 경로 변경
+                        loadingImage.src = '/images/giftGivingFail.gif'; // 새로운 로딩 이미지 경로로 변경
+
+                        // loading-text 숨기기
+                        loadingText.style.display = 'none';
+                        loadingScreen.style.display = 'block';
+                        canvas.style.display = 'none';
+                    }, 2000); // 2초 후에 실행
                 }
                 window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
-
-
-
-
-                
             });
 
         } else {
