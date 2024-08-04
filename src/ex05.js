@@ -61,7 +61,7 @@ export default function example() {
     controls.minDistance = 5;
 
     // 카메라가 타겟으로부터 멀어질 수 있는 최대 거리 설정
-    controls.maxDistance = 15;
+    controls.maxDistance = 20;
 
     const ambientLight = new THREE.AmbientLight("#ffffff", 1000);
     scene.add(ambientLight); 
@@ -189,11 +189,30 @@ export default function example() {
 
 
     let giftBox;
-    let giftBoxPosition = [
+    const letterImages = [
+        '/images/책상위민지.png',
+        '/images/현미경별수지.png',
+        '/images/포도나무하늘.png',
+        '/images/해적왕루피.png'
+    ];
+    const giftBoxPosition = [
         { "x" : 0.3 , "y" : 2.55 , "z" : -1.6 }, // 책상위 좌표
         { "x" : 4   , "y" : 1    , "z" : 0    }, // 트리옆
         { "x" : -4.5, "y" : 2.55 , "z" : -1   }, // 술통 위
-    ]; 
+        { "x" : -4.5, "y" : 2.55 , "z" : -1   }, // 보물상자안에
+    ];
+    
+    const gitbBoxColor = [
+        {"box" : "pink"   , "rebon" : "green" },
+        {"box" : "yellow" , "rebon" : "blue" },
+        {"box" : "purple" , "rebon" : "green" },
+        {"box" : "black"  , "rebon" : "white" }
+    ]
+    
+    const ramdomCnt = Math.floor(Math.random() * 4);
+    console.log("랜덤 수 : " +ramdomCnt );
+    let gameCnt;
+
     gltfLoader.load("/models/giftBox_joinSpare.glb", (gltf) => {
 
         if (gltf.scene) {
@@ -209,7 +228,10 @@ export default function example() {
                     ||  child.name == "BezierCircle003"  
                 ) {
                     const rebonMaterial = child.material.clone();
-                    rebonMaterial.color.set("red");
+                    console.log("리본 색깔은 : "+gitbBoxColor[ramdomCnt].rebon);
+                    rebonMaterial.color.set(gitbBoxColor[ramdomCnt].rebon);
+                    rebonMaterial.emissive.set(gitbBoxColor[ramdomCnt].rebon);
+                    rebonMaterial.emissiveIntensity = 1;
                     
                     child.material = rebonMaterial;
                     if (child.isMesh) {
@@ -217,7 +239,11 @@ export default function example() {
                     }
                 } else if (child.name == "cube" ){
                     const cubeMaterial = child.material.clone();
-                    cubeMaterial.color.set("green");
+                    console.log("박스 색깔은 : "+gitbBoxColor[ramdomCnt].box);
+                    
+                    cubeMaterial.color.set(gitbBoxColor[ramdomCnt].box);
+                    cubeMaterial.emissive.set(gitbBoxColor[ramdomCnt].box);
+                    cubeMaterial.emissiveIntensity = 1; // 자발광 강도 설정
                     
                     child.material = cubeMaterial;
                     if (child.isMesh) {
@@ -552,7 +578,7 @@ export default function example() {
             // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
             if (clickedObject.name === "Plane007") {
                 // 이미지를 보여주는 함수 호출
-                showImageFullScreen('/images/letter.png', 'default');
+                showImageFullScreen(letterImages[ramdomCnt], 'default');
             } else if (clickedObject.name === "Cube004"        || clickedObject.name.includes("Cube008") 
                     || clickedObject.name.includes("Cube007")  || clickedObject.name.includes("Plane006") 
                     || clickedObject.name.includes("Plane005") || clickedObject.name.includes("Plane007") 
