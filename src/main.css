@@ -18,16 +18,18 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 999;
 }
 
-/* .loading-spinner {
+/*
+.loading-spinner {
   width: 50px;
   height: 50px;
   border: 5px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
-} */
+}
+*/
 
 .loading-text {
   margin-top: 10px;
@@ -79,4 +81,15 @@ body {
   max-height: 80vh; /* 화면 높이의 30%를 최대 높이로 설정합니다. */
   width: auto; /* 너비를 자동으로 설정합니다. */
   height: auto; /* 높이를 자동으로 설정합니다. */
+}
+
+#resetBtn {
+  display: none;
+  width: 100px; /* 버튼 크기를 키웁니다 */
+  height: 30px; /* 버튼 크기를 키웁니다 */
+  z-index: 1000;
+  position: absolute; /* 절대 위치로 설정 */
+  bottom: 20px; /* 화면 아래에서 20px 위로 설정 */
+  left: 50%; /* 화면 중앙으로 설정 */
+  transform: translateX(-50%); /* 수평으로 가운데 정렬 */
 }

@@ -58,10 +58,10 @@ export default function example() {
     // controls.enableRotate = false;
 
     // 카메라가 타겟에 가까워질 수 있는 최소 거리 설정
-    controls.minDistance = 10;
+    controls.minDistance = 5;
 
     // 카메라가 타겟으로부터 멀어질 수 있는 최대 거리 설정
-    controls.maxDistance = 100;
+    controls.maxDistance = 15;
 
     const ambientLight = new THREE.AmbientLight("#ffffff", 1000);
     scene.add(ambientLight); 
@@ -243,46 +243,46 @@ export default function example() {
         console.error('GLTF 파일 로드 오류', error);
     });
 
+/*
+    산타
+    let santa;
+    gltfLoader.load("/models/santa_3D.glb", (gltf) => {
 
-    // 산타
-    // let santa;
-    // gltfLoader.load("/models/santa_3D.glb", (gltf) => {
-
-    //     if (gltf.scene) {
-    //         gltf.scene.castShadow = true;
+        if (gltf.scene) {
+            gltf.scene.castShadow = true;
     
-    //         console.log("산타 ==========================>");
-    //         console.log(gltf.scene.children);
-    //         gltf.scene.children[0].traverse((child) => {
-    //             // Cube028 귀, 코
-    //             // Cube028_1 얼굴
-    //             // Cube028_2 산타옷
-    //             // Cube028_3 수염, 모자꽁다리
-    //             // Cube028_4 벨트, 손발
-    //             // Cube028_5 밸트 고리
-    //                 console.log(`Child name: ${child.name}`);
-    //                 if (child.isMesh) {
-    //                     if (child.name === "Cube028" || child.name === "Cube028_1") {
-    //                         const rebonMaterial = child.material.clone();
-    //                         rebonMaterial.color.set("#f4d9cb");
+            console.log("산타 ==========================>");
+            console.log(gltf.scene.children);
+            gltf.scene.children[0].traverse((child) => {
+                // Cube028 귀, 코
+                // Cube028_1 얼굴
+                // Cube028_2 산타옷
+                // Cube028_3 수염, 모자꽁다리
+                // Cube028_4 벨트, 손발
+                // Cube028_5 밸트 고리
+                    console.log(`Child name: ${child.name}`);
+                    if (child.isMesh) {
+                        if (child.name === "Cube028" || child.name === "Cube028_1") {
+                            const rebonMaterial = child.material.clone();
+                            rebonMaterial.color.set("#f4d9cb");
                             
-    //                         child.material = rebonMaterial;
-    //                         child.material.needsUpdate = true; // 재질 업데이트
-    //                     }
-    //                 child.castShadow = true; // 그림자 캐스팅
-    //                 child.receiveShadow = true; // 그림자 수신
-    //                 }
-    //             });
-    //         }
-    //     santa = gltf.scene.children[0];
-    //     console.log(santa);
-    //     santa.position.set(0, 2, 0);
-    //     scene.add(santa);
+                            child.material = rebonMaterial;
+                            child.material.needsUpdate = true; // 재질 업데이트
+                        }
+                    child.castShadow = true; // 그림자 캐스팅
+                    child.receiveShadow = true; // 그림자 수신
+                    }
+                });
+            }
+        santa = gltf.scene.children[0];
+        console.log(santa);
+        santa.position.set(0, 2, 0);
+        scene.add(santa);
 
-    // }, undefined, (error) => {
-    //     console.error('GLTF 파일 로드 오류', error);
-    // });
-
+    }, undefined, (error) => {
+        console.error('GLTF 파일 로드 오류', error);
+    });
+*/
 
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
     const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
@@ -625,15 +625,17 @@ export default function example() {
                 imageElement.remove();
                 yesButton.remove();
                 noButton.remove();
+                
+                const loadingImage = document.getElementById('loading-image');
+                const loadingText = document.querySelector('.loading-text');
+                const resetBtn = document.getElementById('resetBtn');
 
+                // 성공했을떄
                 if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
                     giftBox.visible = true;
                     giftBox.position.set(giftBoxPosition[2].x,giftBoxPosition[2].y,giftBoxPosition[2].z);
-
+                    
                     setTimeout(() => {
-
-                        const loadingImage = document.getElementById('loading-image');
-                        const loadingText = document.querySelector('.loading-text');
 
                         // 로딩 이미지의 src 경로 변경
                         loadingImage.src = '/images/giftGivingSuccess.gif'; // 새로운 로딩 이미지 경로로 변경
@@ -641,16 +643,16 @@ export default function example() {
                         // loading-text 숨기기
                         loadingText.style.display = 'none';
                         loadingScreen.style.display = 'block';
+                        resetBtn.style.display = 'block';
                         canvas.style.display = 'none';
                     }, 2000); // 2초 후에 실행
+                // 실패했을떈
                 } else {
+
                     giftBox.visible = true;
                     giftBox.position.set(giftBoxPosition[1].x,giftBoxPosition[1].y,giftBoxPosition[1].z);
 
                     setTimeout(() => {
-
-                        const loadingImage = document.getElementById('loading-image');
-                        const loadingText = document.querySelector('.loading-text');
 
                         // 로딩 이미지의 src 경로 변경
                         loadingImage.src = '/images/giftGivingFail.gif'; // 새로운 로딩 이미지 경로로 변경
@@ -658,6 +660,7 @@ export default function example() {
                         // loading-text 숨기기
                         loadingText.style.display = 'none';
                         loadingScreen.style.display = 'block';
+                        resetBtn.style.display = 'block';
                         canvas.style.display = 'none';
                     }, 2000); // 2초 후에 실행
                 }
@@ -687,6 +690,21 @@ export default function example() {
    
     document.addEventListener('mousedown', onDocumentMouseDown, false);
     document.addEventListener('mousemove', onDocumentMouseMove, false);
-    document.addEventListener('mouseup', onDocumentMouseUp, false); 
+    document.addEventListener('mouseup', onDocumentMouseUp, false);
+    
+    // resetBtn 클릭 이벤트 핸들러 추가
+    const resetBtn = document.getElementById('resetBtn');
+    resetBtn.addEventListener('click', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        const canvas = document.getElementById('three-canvas');
+
+        resetBtn.style.display = 'none';
+        loadingScreen.style.display = 'none';
+        canvas.style.display = 'block';
+
+        // 예: giftBox 숨기기, 기타 상태 초기화 등
+        giftBox.visible = false;
+        canvas.style.display = 'block';
+    });
 }
 
