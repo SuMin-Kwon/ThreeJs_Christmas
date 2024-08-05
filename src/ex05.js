@@ -203,15 +203,16 @@ export default function example() {
     ];
     
     const gitbBoxColor = [
-        {"box" : "pink"   , "rebon" : "green" },
-        {"box" : "yellow" , "rebon" : "blue" },
-        {"box" : "purple" , "rebon" : "green" },
-        {"box" : "black"  , "rebon" : "white" }
+        {"box" : "magenta", "rebon" : "blue" },
+        {"box" : "gold"   , "rebon" : "navy" },
+        {"box" : "purple" , "rebon" : "gold" },
+        {"box" : "black"  , "rebon" : "gray" }
     ]
     
     const ramdomCnt = Math.floor(Math.random() * 4);
+    let rsltYn = "Y";
     console.log("랜덤 수 : " +ramdomCnt );
-    let gameCnt;
+    let gameCnt = 3;
 
     gltfLoader.load("/models/giftBox_joinSpare.glb", (gltf) => {
 
@@ -231,7 +232,7 @@ export default function example() {
                     console.log("리본 색깔은 : "+gitbBoxColor[ramdomCnt].rebon);
                     rebonMaterial.color.set(gitbBoxColor[ramdomCnt].rebon);
                     rebonMaterial.emissive.set(gitbBoxColor[ramdomCnt].rebon);
-                    rebonMaterial.emissiveIntensity = 1;
+                    rebonMaterial.emissiveIntensity = 0.9;
                     
                     child.material = rebonMaterial;
                     if (child.isMesh) {
@@ -243,7 +244,7 @@ export default function example() {
                     
                     cubeMaterial.color.set(gitbBoxColor[ramdomCnt].box);
                     cubeMaterial.emissive.set(gitbBoxColor[ramdomCnt].box);
-                    cubeMaterial.emissiveIntensity = 1; // 자발광 강도 설정
+                    cubeMaterial.emissiveIntensity = 0.9; // 자발광 강도 설정
                     
                     child.material = cubeMaterial;
                     if (child.isMesh) {
@@ -472,10 +473,10 @@ export default function example() {
     scene.add(axesHelper);
 
     // Dat GUI
-    const gui = new dat.GUI();
-    gui.add(camera.position, "x", -10, 100, 0.1).name("카메라 X");
-    gui.add(camera.position, "y", -10, 100, 0.1).name("카메라 Y");
-    gui.add(camera.position, "z", -10, 100, 0.1).name("카메라 Z");
+    //const gui = new dat.GUI();
+    //gui.add(camera.position, "x", -10, 100, 0.1).name("카메라 X");
+    //gui.add(camera.position, "y", -10, 100, 0.1).name("카메라 Y");
+    //gui.add(camera.position, "z", -10, 100, 0.1).name("카메라 Z");
     
 
     // 그리기
@@ -658,6 +659,8 @@ export default function example() {
 
                 // 성공했을떄
                 if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
+                    
+                    rsltYn = "Y";
                     giftBox.visible = true;
                     giftBox.position.set(giftBoxPosition[2].x,giftBoxPosition[2].y,giftBoxPosition[2].z);
                     
@@ -674,6 +677,10 @@ export default function example() {
                     }, 2000); // 2초 후에 실행
                 // 실패했을떈
                 } else {
+                    
+                    rsltYn = "N";
+                    gameCnt--;
+                    console.log("남은 횟수 : "+ gameCnt);
 
                     giftBox.visible = true;
                     giftBox.position.set(giftBoxPosition[1].x,giftBoxPosition[1].y,giftBoxPosition[1].z);
@@ -723,14 +730,20 @@ export default function example() {
     resetBtn.addEventListener('click', () => {
         const loadingScreen = document.getElementById('loading-screen');
         const canvas = document.getElementById('three-canvas');
-
-        resetBtn.style.display = 'none';
-        loadingScreen.style.display = 'none';
-        canvas.style.display = 'block';
-
-        // 예: giftBox 숨기기, 기타 상태 초기화 등
-        giftBox.visible = false;
-        canvas.style.display = 'block';
+        
+        let countCnt = document.getElementById('countCnt');
+        countCnt.innerText = gameCnt;
+        if(rsltYn === "Y" || gameCnt < 1){
+            location.reload();
+        } else {
+            resetBtn.style.display = 'none';
+            loadingScreen.style.display = 'none';
+            canvas.style.display = 'block';
+    
+            // 예: giftBox 숨기기, 기타 상태 초기화 등
+            giftBox.visible = false;
+            canvas.style.display = 'block';
+        }
     });
 }
 
