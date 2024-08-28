@@ -90,6 +90,7 @@ export default function example() {
     const gltfLoader = new GLTFLoader();
 
     let room;
+    let letter;
     gltfLoader.load("/models/odomak.glb", (gltf) => {
         if (gltf.scene) {
             gltf.scene.castShadow = true;
@@ -135,6 +136,10 @@ export default function example() {
                     );
                     child.castShadow = true; // 그림자 캐스팅
                     child.receiveShadow = true; // 그림자 수신
+                } else if(child.name === "Plane007"){
+                    child.castShadow = true; // 그림자 캐스팅
+                    child.receiveShadow = true; // 그림자 수신
+                    letter = child;
                 }
                  else {
                     child.castShadow = true; // 그림자 캐스팅
@@ -147,7 +152,7 @@ export default function example() {
             room = gltf.scene;
             room.position.set(10, 1, 13);
             room.scale.set(0.03, 0.03, 0.03);
-            scene.add(room);
+            scene.add(room);        
 
             hideLoadingScreen();
         }else {
@@ -473,11 +478,11 @@ export default function example() {
     scene.add(axesHelper);
 
     // Dat GUI
-    //const gui = new dat.GUI();
-    //gui.add(camera.position, "x", -10, 100, 0.1).name("카메라 X");
-    //gui.add(camera.position, "y", -10, 100, 0.1).name("카메라 Y");
-    //gui.add(camera.position, "z", -10, 100, 0.1).name("카메라 Z");
-    
+    const gui = new dat.GUI();
+    gui.add(camera.position, "x", -10, 100, 0.1).name("카메라 X");
+    gui.add(camera.position, "y", -10, 100, 0.1).name("카메라 Y");
+    gui.add(camera.position, "z", -10, 100, 0.1).name("카메라 Z");
+
 
     // 그리기
     const clock = new THREE.Clock();
@@ -492,15 +497,15 @@ export default function example() {
         //stars.rotation.y += 0.001;
 
         renderer.render(scene, camera);
-
+        
         //각 눈송이마다 이동 처리
         for (const snowflake of snowflakes) {
             snowflake.position.y -= snowflake.velocity;
-                if (snowflake.position.y < -50) {
-                    snowflake.position.y = 50;
-                    snowflake.position.x = Math.random() * 200 - 50;
-                    snowflake.position.z = Math.random() * 200 - 50;
-                }
+            if (snowflake.position.y < -50) {
+                snowflake.position.y = 50;
+                snowflake.position.x = Math.random() * 200 - 50;
+                snowflake.position.z = Math.random() * 200 - 50;
+            }
         }
     }
 
@@ -510,6 +515,9 @@ export default function example() {
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.render(scene, camera);
     }
+
+    // 물체의 원래 위치를 저장하기 위한 맵
+    const originalPositions = new Map();
 
     // 이벤트
     window.addEventListener("resize", setSize);
@@ -558,6 +566,11 @@ export default function example() {
     function onDocumentClick(event) {
         event.preventDefault();
 
+        // 우클릭이면 아무 동작도 X
+        if (event.button === 2) {
+            return; 
+        }
+
         // 마우스의 클릭 위치를 정규화된 장치 좌표로 변환
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -595,13 +608,13 @@ export default function example() {
         const imgRect = imageElement.getBoundingClientRect();
         const btnSize = imgRect.width * 0.2;
 
+        // "Yes" 버튼 위치 설정
         yesButton.style.width = `${btnSize}px`;
-        yesButton.style.height = 'auto';
         yesButton.style.left = `${imgRect.left + imgRect.width * 0.25 - btnSize / 2}px`;
         yesButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
 
+        // "No" 버튼 위치 설정
         noButton.style.width = `${btnSize}px`;
-        noButton.style.height = 'auto';
         noButton.style.left = `${imgRect.left + imgRect.width * 0.75 - btnSize / 2}px`;
         noButton.style.top = `${imgRect.bottom - btnSize * 1.1}px`;
     }
@@ -612,10 +625,14 @@ export default function example() {
         if (document.getElementById('fullscreenImage')) {
             return;
         }
-
         const imageElement = document.createElement('img');
         imageElement.src = imageUrl;
         imageElement.id = 'fullscreenImage';
+        imageElement.style.position = 'fixed';
+        imageElement.style.top = '50%';
+        imageElement.style.left = '50%';
+        imageElement.style.transform = 'translate(-50%, -50%)';
+        imageElement.style.zIndex = '9999';
 
         if (styleType === 'custom') {
             imageElement.style.maxWidth = '90vh';
@@ -637,67 +654,22 @@ export default function example() {
             document.body.appendChild(yesButton);
             document.body.appendChild(noButton);
 
+            // 이미지 로드 후 버튼 위치 조정
             imageElement.onload = () => positionButtons(imageElement, yesButton, noButton);
-            window.addEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
+            // 창 크기 변경 시 버튼 위치 조정
+            const resizeHandler = () => positionButtons(imageElement, yesButton, noButton);
+            window.addEventListener('resize', resizeHandler);
 
+            // "No" 버튼 클릭 시 동작
             noButton.addEventListener('click', () => {
-                imageElement.remove();
-                yesButton.remove();
-                noButton.remove();
-                window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
+                cleanup(imageElement, yesButton, noButton, resizeHandler);
             });
 
+            // "Yes" 버튼 클릭 시 동작
             yesButton.addEventListener('click', () => {
                 console.log('Yes button clicked');
-                imageElement.remove();
-                yesButton.remove();
-                noButton.remove();
-                
-                const loadingImage = document.getElementById('loading-image');
-                const loadingText = document.querySelector('.loading-text');
-                const resetBtn = document.getElementById('resetBtn');
-
-                // 성공했을떄
-                if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
-                    
-                    rsltYn = "Y";
-                    giftBox.visible = true;
-                    giftBox.position.set(giftBoxPosition[2].x,giftBoxPosition[2].y,giftBoxPosition[2].z);
-                    
-                    setTimeout(() => {
-
-                        // 로딩 이미지의 src 경로 변경
-                        loadingImage.src = '/images/giftGivingSuccess.gif'; // 새로운 로딩 이미지 경로로 변경
-
-                        // loading-text 숨기기
-                        loadingText.style.display = 'none';
-                        loadingScreen.style.display = 'block';
-                        resetBtn.style.display = 'block';
-                        canvas.style.display = 'none';
-                    }, 2000); // 2초 후에 실행
-                // 실패했을떈
-                } else {
-                    
-                    rsltYn = "N";
-                    gameCnt--;
-                    console.log("남은 횟수 : "+ gameCnt);
-
-                    giftBox.visible = true;
-                    giftBox.position.set(giftBoxPosition[1].x,giftBoxPosition[1].y,giftBoxPosition[1].z);
-
-                    setTimeout(() => {
-
-                        // 로딩 이미지의 src 경로 변경
-                        loadingImage.src = '/images/giftGivingFail.gif'; // 새로운 로딩 이미지 경로로 변경
-
-                        // loading-text 숨기기
-                        loadingText.style.display = 'none';
-                        loadingScreen.style.display = 'block';
-                        resetBtn.style.display = 'block';
-                        canvas.style.display = 'none';
-                    }, 2000); // 2초 후에 실행
-                }
-                window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
+                handleYesButtonClick();
+                cleanup(imageElement, yesButton, noButton, resizeHandler);
             });
 
         } else {
@@ -706,25 +678,61 @@ export default function example() {
             document.body.appendChild(imageElement);
         }
 
-        imageElement.style.position = 'fixed';
-        imageElement.style.top = '50%';
-        imageElement.style.left = '50%';
-        imageElement.style.transform = 'translate(-50%, -50%)';
-        imageElement.style.zIndex = '9999';
-
+        // 이미지 클릭 시 제거
         imageElement.addEventListener('click', () => {
-            imageElement.remove();
-            if (document.getElementById('yesButton')) document.getElementById('yesButton').remove();
-            if (document.getElementById('noButton')) document.getElementById('noButton').remove();
-            window.removeEventListener('resize', () => positionButtons(imageElement, yesButton, noButton));
+            cleanup(imageElement);
         });
+    }
+
+    // 리소스 정리 함수
+    function cleanup(imageElement, yesButton = null, noButton = null, resizeHandler = null) {
+        imageElement.remove();
+        if (yesButton) yesButton.remove();
+        if (noButton) noButton.remove();
+        if (resizeHandler) window.removeEventListener('resize', resizeHandler);
+    }
+
+    // "Yes" 버튼 클릭 시 동작을 처리하는 함수
+    function handleYesButtonClick() {
+        const loadingImage = document.getElementById('loading-image');
+        const loadingText = document.querySelector('.loading-text');
+        const resetBtn = document.getElementById('resetBtn');
+
+        if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
+            rsltYn = "Y";
+            giftBox.visible = true;
+            giftBox.position.set(giftBoxPosition[2].x, giftBoxPosition[2].y, giftBoxPosition[2].z);
+
+            setTimeout(() => {
+                loadingImage.src = '/images/giftGivingSuccess.gif';
+                loadingText.style.display = 'none';
+                loadingScreen.style.display = 'block';
+                resetBtn.style.display = 'block';
+                canvas.style.display = 'none';
+            }, 2000);
+        } else {
+            rsltYn = "N";
+            gameCnt--;
+            console.log("남은 횟수 : " + gameCnt);
+
+            giftBox.visible = true;
+            giftBox.position.set(giftBoxPosition[1].x, giftBoxPosition[1].y, giftBoxPosition[1].z);
+
+            setTimeout(() => {
+                loadingImage.src = '/images/giftGivingFail.gif';
+                loadingText.style.display = 'none';
+                loadingScreen.style.display = 'block';
+                resetBtn.style.display = 'block';
+                canvas.style.display = 'none';
+            }, 2000);
+        }
     }
 
    
     document.addEventListener('mousedown', onDocumentMouseDown, false);
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
+    //document.addEventListener('mousemove', onDocumentMouseMove, onMouseMove);
     document.addEventListener('mouseup', onDocumentMouseUp, false);
-    
+
     // resetBtn 클릭 이벤트 핸들러 추가
     const resetBtn = document.getElementById('resetBtn');
     resetBtn.addEventListener('click', () => {
@@ -745,5 +753,96 @@ export default function example() {
             canvas.style.display = 'block';
         }
     });
+
+
+    function onMouseMove(event) {
+
+        const mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children);
+
+        if (intersects.length > 0) {
+            const intersectedObject = intersects[0].object;
+            console.log(intersectedObject.name);
+            if (intersectedObject.name === ""     
+            ) {
+                gsap.to(camera.position, {
+                    x: 0.3,
+                    y: 8,
+                    z: 3,
+                    duration: 0.3
+                });
+            } 
+            /*
+            else if(intersectedObject.name.includes("Cone")){
+                console.log("z콘");
+                gsap.to(camera.position, {
+                    x: -4,
+                    y: 8,
+                    z: 3.5,
+                    duration: 0.3,
+                    onUpdate: function () {
+                        camera.lookAt(intersectedObject.position);
+                        controls.update(); // controls 업데이트
+                    }
+                });
+            }
+                */
+            else if(intersectedObject.name.includes("Cube008") || intersectedObject.name === "Cube004" ){
+                gsap.to(camera.position, {
+                    x: 5,
+                    y: 7,
+                    z: 6,
+                    duration: 0.3,
+                    onUpdate: function () {
+                        camera.lookAt(intersectedObject.position);
+                        controls.update(); // controls 업데이트
+                    }
+                });
+            }
+            /** 
+            else {
+                gsap.to(camera.position, {
+                    x: 0,
+                    y: 12,
+                    z: 8,
+                    duration: 0.3,
+                    onUpdate: function () {
+                        camera.lookAt(new THREE.Vector3(0, 0, 0));
+                        controls.update(); // controls 업데이트
+                    }
+                });
+            } 
+            
+            */
+            
+        }
+            
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    
+    // 우클릭시 초기화 시점으로 이동
+    document.addEventListener('contextmenu', onDocumentRightClick, false);
+
+    function onDocumentRightClick(event) {
+        event.preventDefault(); 
+
+        gsap.to(camera.position, {
+            x: 0, 
+            y: 12, 
+            z: 8,
+            duration: 1,
+            onUpdate: function () {
+                camera.lookAt(new THREE.Vector3(0, 0, 0));
+                controls.update(); 
+            }
+        });
+    }
+    
 }
 
