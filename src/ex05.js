@@ -91,6 +91,7 @@ export default function example() {
 
     let room;
     let letter;
+    let box;
     gltfLoader.load("/models/odomak.glb", (gltf) => {
         if (gltf.scene) {
             gltf.scene.castShadow = true;
@@ -140,6 +141,10 @@ export default function example() {
                     child.castShadow = true; // 그림자 캐스팅
                     child.receiveShadow = true; // 그림자 수신
                     letter = child;
+                } else if(child.name === "Cube011"){
+                    child.castShadow = true; // 그림자 캐스팅
+                    child.receiveShadow = true; // 그림자 수신
+                    box = child;
                 }
                  else {
                     child.castShadow = true; // 그림자 캐스팅
@@ -275,47 +280,6 @@ export default function example() {
         console.error('GLTF 파일 로드 오류', error);
     });
 
-/*
-    산타
-    let santa;
-    gltfLoader.load("/models/santa_3D.glb", (gltf) => {
-
-        if (gltf.scene) {
-            gltf.scene.castShadow = true;
-    
-            console.log("산타 ==========================>");
-            console.log(gltf.scene.children);
-            gltf.scene.children[0].traverse((child) => {
-                // Cube028 귀, 코
-                // Cube028_1 얼굴
-                // Cube028_2 산타옷
-                // Cube028_3 수염, 모자꽁다리
-                // Cube028_4 벨트, 손발
-                // Cube028_5 밸트 고리
-                    console.log(`Child name: ${child.name}`);
-                    if (child.isMesh) {
-                        if (child.name === "Cube028" || child.name === "Cube028_1") {
-                            const rebonMaterial = child.material.clone();
-                            rebonMaterial.color.set("#f4d9cb");
-                            
-                            child.material = rebonMaterial;
-                            child.material.needsUpdate = true; // 재질 업데이트
-                        }
-                    child.castShadow = true; // 그림자 캐스팅
-                    child.receiveShadow = true; // 그림자 수신
-                    }
-                });
-            }
-        santa = gltf.scene.children[0];
-        console.log(santa);
-        santa.position.set(0, 2, 0);
-        scene.add(santa);
-
-    }, undefined, (error) => {
-        console.error('GLTF 파일 로드 오류', error);
-    });
-*/
-
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
     const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
 
@@ -350,65 +314,6 @@ export default function example() {
 
     const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
     scene.add(pointLightHelper2);
-
-    // 크리스마스 전구 
-    // const numLights = 30; 
-    // const lightColors = [0xff0000, 0xffa500, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0xee82ee]; 
-    // const treeHeight = 3.5; 
-    // const treeRadius = 2; 
-    // const turns = 3;
-    // const offsetX = 4.7;
-    // const offsetY = 2;
-    // const offsetZ = -2.3;
-
-    // for (let i = 0; i < numLights; i++) {
-    //   const color = lightColors[i % lightColors.length]; 
-    //   const light = new THREE.PointLight(color, 1, 5);
-
-    //   const t = i / numLights;
-    //   const angle = t * turns * Math.PI * 2;
-    //   const y = t * treeHeight + offsetY;
-    //   const x = Math.cos(angle) * (treeRadius * (1 - t)) + offsetX;
-    //   const z = Math.sin(angle) * (treeRadius * (1 - t)) + offsetZ;
-
-    //   light.position.set(x, y, z);
-    //   scene.add(light);
-
-    //   const sphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
-    //   const sphereMaterial = new THREE.MeshBasicMaterial({ color });
-    //   const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    //   sphere.position.set(x, y, z);
-    //   scene.add(sphere);
-    // }
-
-    // // 별빛을 표현할 재질 생성
-    // const starMaterial = new THREE.PointsMaterial({
-    //     color: 0xffffff, // 별빛 색상
-    //     size: 0.3 // 별빛 크기
-    // });
-
-    // // 별빛 점들 생성
-    // const starGeometry = new THREE.BufferGeometry();
-
-    // const stars = new THREE.Points(starGeometry, starMaterial);
-    //     // 버퍼 속성 생성
-    // const positions = new Float32Array(1000 * 3); // 1000개의 점 * 3차원 좌표 (x, y, z)
-    // starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    // // 별빛을 생성하고 버퍼 속성에 추가하는 반복문
-    // for (let i = 0; i < 1000; i++) {
-    //     const star = new THREE.Vector3(
-    //         Math.random() * 600 - 300, // x 좌표
-    //         Math.random() * 600 - 300, // y 좌표
-    //         Math.random() * 600 - 300  // z 좌표
-    //     );
-    //     positions[i * 3] = star.x;
-    //     positions[i * 3 + 1] = star.y;
-    //     positions[i * 3 + 2] = star.z;
-    // }
-
-    // // 씬에 별빛 객체 추가
-    // scene.add(stars);
 
     // 눈송이효과
     const snowflakes = [];
@@ -531,6 +436,9 @@ export default function example() {
     }
 
     //window.addEventListener('click', onDocumentClick);
+    document.addEventListener('mousedown', onDocumentMouseDown, false);
+    document.addEventListener('mousemove', onMouseMove, false);
+    document.addEventListener('mouseup', onDocumentMouseUp, false);
 
     let isDragging = false;
     let mouseDownTime = 0;
@@ -757,6 +665,7 @@ export default function example() {
 
     function onMouseMove(event) {
 
+        isDragging = true;
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -768,57 +677,10 @@ export default function example() {
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
             console.log(intersectedObject.name);
-            if (intersectedObject.name === ""     
-            ) {
-                gsap.to(camera.position, {
-                    x: 0.3,
-                    y: 8,
-                    z: 3,
-                    duration: 0.3
-                });
-            } 
-            /*
-            else if(intersectedObject.name.includes("Cone")){
-                console.log("z콘");
-                gsap.to(camera.position, {
-                    x: -4,
-                    y: 8,
-                    z: 3.5,
-                    duration: 0.3,
-                    onUpdate: function () {
-                        camera.lookAt(intersectedObject.position);
-                        controls.update(); // controls 업데이트
-                    }
-                });
+            if(intersectedObject.name == "Cube004" || intersectedObject.name == "Cube011" ){
+                box.scale.set(1.1, 1.1, 1.1);
             }
-                */
-            else if(intersectedObject.name.includes("Cube008") || intersectedObject.name === "Cube004" ){
-                gsap.to(camera.position, {
-                    x: 5,
-                    y: 7,
-                    z: 6,
-                    duration: 0.3,
-                    onUpdate: function () {
-                        camera.lookAt(intersectedObject.position);
-                        controls.update(); // controls 업데이트
-                    }
-                });
-            }
-            /** 
-            else {
-                gsap.to(camera.position, {
-                    x: 0,
-                    y: 12,
-                    z: 8,
-                    duration: 0.3,
-                    onUpdate: function () {
-                        camera.lookAt(new THREE.Vector3(0, 0, 0));
-                        controls.update(); // controls 업데이트
-                    }
-                });
-            } 
-            
-            */
+        }else {
             
         }
             
