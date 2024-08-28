@@ -664,30 +664,92 @@ export default function example() {
 
 
     function onMouseMove(event) {
-
         isDragging = true;
+
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+    
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(scene.children);
-
+    
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
             console.log(intersectedObject.name);
-            if(intersectedObject.name == "Cube004" || intersectedObject.name == "Cube011" ){
-                box.scale.set(1.1, 1.1, 1.1);
-            }
-        }else {
             
+            if (intersectedObject.name === "Cube004" || intersectedObject.name.includes("Cube008") ) {
+                console.log(room.getObjectByName("Cube011").position);
+                console.log(room.getObjectByName("Cube004").position);
+                console.log("********************************");
+                gsap.to(room.getObjectByName("Cube004").scale, { 
+                    x: 120, 
+                    y: 120, 
+                    z: 120, 
+                    duration: 0.3 
+                });
+                gsap.to(room.getObjectByName("Cube011").scale, { 
+                    x: 120, 
+                    y: 120, 
+                    z: 120, 
+                    duration: 0.3 
+                });
+                gsap.to(room.getObjectByName("Cube004").position, { 
+                    y: room.getObjectByName("Cube004").position.y + 2,  
+                    duration: 0.1 
+                });
+                gsap.to(room.getObjectByName("Cube011").position, { 
+                    y: room.getObjectByName("Cube011").position.y + 2,  
+                    duration: 0.1 
+                });
+            } else {
+                // 마우스가 어떤 물체에도 걸리지 않으면, 확대된 물체를 원래 크기로 되돌림
+                gsap.to(room.getObjectByName("Cube004").scale, { 
+                    x: 100, 
+                    y: 100, 
+                    z: 100, 
+                    duration: 0.3 
+                });
+                gsap.to(room.getObjectByName("Cube011").scale, { 
+                    x: 100, 
+                    y: 100, 
+                    z: 100, 
+                    duration: 0.3 
+                });
+                gsap.to(room.getObjectByName("Cube004").position, { 
+                    y: 22.68473,  
+                    duration: 0.1 
+                });
+                gsap.to(room.getObjectByName("Cube011").position, { 
+                    y: 26.871553,  
+                    duration: 0.1 
+                });
+            } 
+        } else {
+            // 마우스가 어떤 물체에도 걸리지 않으면, 확대된 물체를 원래 크기로 되돌림
+            gsap.to(room.getObjectByName("Cube004").scale, { 
+                x: 100, 
+                y: 100, 
+                z: 100, 
+                duration: 0.3 
+            });
+            gsap.to(room.getObjectByName("Cube011").scale, { 
+                x: 100, 
+                y: 100, 
+                z: 100, 
+                duration: 0.3 
+            });
+            gsap.to(room.getObjectByName("Cube004").position, { 
+                y: 22.68473,  
+                duration: 0.1 
+            });
+            gsap.to(room.getObjectByName("Cube011").position, { 
+                y: 26.871553,  
+                duration: 0.1 
+            });
         }
-            
     }
 
-    document.addEventListener('mousemove', onMouseMove);
-    
     // 우클릭시 초기화 시점으로 이동
     document.addEventListener('contextmenu', onDocumentRightClick, false);
 
