@@ -110,3 +110,8 @@ body {
   font-size: 18px; /* 글자 크기 설정 */
   font-weight: 400;
 }
+
+#yesButton:hover, #noButton:hover {
+  transform: scale(1.2); /* 버튼 크기를 1.2배로 키움 */
+  transition: transform 0.3s ease; /* 부드러운 크기 변경 효과 */
+}
