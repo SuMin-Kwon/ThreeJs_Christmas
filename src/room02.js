@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import gsap from "gsap";
-import { SpotLightHelper } from "three";
 
 // ----- 주제: glb 파일 애니메이션 효과 추가
 
@@ -213,10 +212,10 @@ export default function room02() {
 
     let giftBox;
     const letterImages = [
-        '/images/책상위민지.png',
-        '/images/현미경별수지.png',
-        '/images/포도나무하늘.png',
-        '/images/해적왕루피.png'
+        '/images/letters/책상위민지.png',
+        '/images/letters/현미경별수지.png',
+        '/images/letters/포도나무하늘.png',
+        '/images/letters/해적왕루피.png'
     ];
     const giftBoxPosition = [
         { "x" : 0.3 , "y" : 2.55 , "z" : -1.6 }, // 책상위 좌표
@@ -693,6 +692,12 @@ export default function room02() {
             ];
             
             resetObjects.forEach(obj => scaleObject(obj.name, obj.scale));
+            resetObjects.forEach(obj => {
+                if (room && room.getObjectByName(obj.name)) {
+                    applyEmissiveEffect(room.getObjectByName(obj.name), 0x000000, 0);
+                }
+            });
+
             if (tree) {
                 gsap.to(tree.scale, { 
                     x: initialTreeScale.x, 
@@ -713,19 +718,29 @@ export default function room02() {
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
             console.log(intersectedObject.name);
+            
             resetScales();
 
             if (intersectedObject.name === "Cube004" || intersectedObject.name.includes("Cube008")) {
                 scaleObject("Cube004", 110);
                 scaleObject("Cube011", 110);
+                applyEmissiveEffect(room.getObjectByName("Cube004"), 0xffd700, 0.05);
+                applyEmissiveEffect(room.getObjectByName("Cube011"), 0xffd700, 0.05);
+                lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
             } 
             else if (intersectedObject.name.includes("Plane012")) {
                 
                 scaleObject("Plane011", 80);
+                applyEmissiveEffect(intersectedObject, 0xffd700, 0.05);
+                applyEmissiveEffect(room.getObjectByName("Plane011"), 0xffd700, 0.05);
+                lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
             }
             else if (intersectedObject.name === "Plane009" || intersectedObject.name === "Plane010") {
                 scaleObject("Plane009", 110);
                 scaleObject("Plane010", 110);
+                applyEmissiveEffect(room.getObjectByName("Plane009"), 0xffd700, 0.05);
+                applyEmissiveEffect(room.getObjectByName("Plane010"), 0xffd700, 0.05);
+                lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
             }
             else if (intersectedObject.name === "chair") {
                 scaleObject("chair", 100);
@@ -746,7 +761,7 @@ export default function room02() {
             }
             else if (intersectedObject.name.includes("book") ) {
                 scaleObject("book001", 110);
-                applyEmissiveEffect(intersectedObject, 0xffd700, 0.05);
+                applyEmissiveEffect(room.getObjectByName("book001"), 0xffd700, 0.05);
                 lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
             }
         } 
