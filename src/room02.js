@@ -690,7 +690,8 @@ export default function room02() {
     });
 
 
-    let lastEmissiveObject = null;
+    let lastEmissiveObject = null;  // 발광하는 객체 변수 저장
+    let resetTimeout = null;        // 타이머를 저장할 변수
     function onMouseMove(event) {
         isDragging = true;
 
@@ -746,6 +747,19 @@ export default function room02() {
             }
         }
 
+        // 발광 효과와 크기 조정 해제 시점을 관리하는 함수
+        function scheduleReset() {
+            // 이전 타이머가 있으면 취소
+            if (resetTimeout) {
+                clearTimeout(resetTimeout);
+            }
+
+            // 3초 후에 발광 및 크기 해제 실행
+            resetTimeout = setTimeout(() => {
+                resetScales();
+            }, 3000);
+        }
+
         
 
         if (intersects.length > 0) {
@@ -797,6 +811,7 @@ export default function room02() {
                 applyEmissiveEffect(room.getObjectByName("book001"), 0xffd700, 0.05);
                 lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
             }
+            scheduleReset();
         } 
         else {
             resetScales();
