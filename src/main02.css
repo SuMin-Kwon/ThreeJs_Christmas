@@ -83,15 +83,33 @@ body {
   height: auto; /* 높이를 자동으로 설정합니다. */
 }
 
-#resetBtn {
-  display: none;
-  width: 100px; /* 버튼 크기를 키웁니다 */
-  height: 30px; /* 버튼 크기를 키웁니다 */
-  z-index: 1000;
+#button-container {
+  display: flex;
+  justify-content: center; /* 버튼들을 수평 중앙 정렬 */
+  align-items: center; /* 버튼들을 수직 중앙 정렬 (선택 사항) */
+  gap: 10px; /* 버튼 사이의 간격 설정 */
   position: absolute; /* 절대 위치로 설정 */
   bottom: 20px; /* 화면 아래에서 20px 위로 설정 */
   left: 50%; /* 화면 중앙으로 설정 */
   transform: translateX(-50%); /* 수평으로 가운데 정렬 */
+  z-index: 1000; /* 버튼이 가장 위에 위치하도록 설정 */
+}
+
+#resetBtn, #restartBtn {
+  display: none;
+  width: 100px; /* 버튼 크기 */
+  height: 30px; /* 버튼 크기 */
+  z-index: 1000;
+  
+  padding: 10px 10px 10px 10px ;
+  background-color: lightgray;
+  text-shadow: -1px -1px black, 1px 1px white;
+  color: gray;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -o-border-radius: 7px;
+  border-radius: 7px;
+  box-shadow: 0 .2em gray; 
 }
 
 #resultCnt {

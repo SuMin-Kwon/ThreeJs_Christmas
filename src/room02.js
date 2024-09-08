@@ -601,6 +601,9 @@ export default function room02() {
         const loadingImage = document.getElementById('loading-image');
         const loadingText = document.querySelector('.loading-text');
         const resetBtn = document.getElementById('resetBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const loadingScreen = document.getElementById('loading-screen');
+        const canvas = document.getElementById('three-canvas');
 
         if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
             rsltYn = "Y";
@@ -612,7 +615,9 @@ export default function room02() {
                 loadingText.style.display = 'none';
                 loadingScreen.style.display = 'block';
                 resetBtn.style.display = 'block';
+                restartBtn.style.display = 'block';
                 canvas.style.display = 'none';
+                console.log("Buttons should be visible");
             }, 2000);
         } else {
             rsltYn = "N";
@@ -627,7 +632,9 @@ export default function room02() {
                 loadingText.style.display = 'none';
                 loadingScreen.style.display = 'block';
                 resetBtn.style.display = 'block';
+                restartBtn.style.display = 'block';
                 canvas.style.display = 'none';
+                console.log("Buttons should be visible");
             }, 2000);
         }
     }
@@ -648,7 +655,9 @@ export default function room02() {
             location.reload();
         } else {
             resetBtn.style.display = 'none';
+            restartBtn.style.display = 'none';
             loadingScreen.style.display = 'none';
+            
             canvas.style.display = 'block';
     
             // 예: giftBox 숨기기, 기타 상태 초기화 등
@@ -656,6 +665,30 @@ export default function room02() {
             canvas.style.display = 'block';
         }
     });
+
+    const restartBtn = document.getElementById('restartBtn');
+    restartBtn.addEventListener('click', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        const canvas = document.getElementById('three-canvas');
+        
+        let countCnt = document.getElementById('countCnt');
+        countCnt.innerText = gameCnt;
+
+        // 게임 상태 초기화
+        gameCnt = 3;  // 게임 횟수를 초기화합니다. 
+        resetBtn.style.display = 'none';
+        restartBtn.style.display = 'none';
+        loadingScreen.style.display = 'none';
+        canvas.style.display = 'block';
+
+        // 예: giftBox 숨기기, 기타 상태 초기화 등
+        giftBox.visible = false;
+        canvas.style.display = 'block';
+    
+        // 다시 open.html로 
+        location.href = "/open.html";
+    });
+
 
     let lastEmissiveObject = null;
     function onMouseMove(event) {
