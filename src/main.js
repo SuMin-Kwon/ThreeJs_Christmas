@@ -1,4 +1,4 @@
 //import example from "./ex04";
-import example from "./ex05";
+import room02 from "./room02";
 
-example();
+room02();

@@ -66,7 +66,7 @@ module.exports = {
 		// 그대로 사용할 파일들이 없다면 CopyWebpackPlugin을 통째로 주석 처리 해주세요.
 		new CopyWebpackPlugin({
 			patterns: [
-				{ from: "./src/main.css", to: "./main.css" },
+				{ from: "./src/main02.css", to: "./main.css" },
 				{ from: "./src/images", to: "./images" },
 				{ from: "./src/models", to: "./models" },
 				{ from: "./src/sounds", to: "./sounds" }

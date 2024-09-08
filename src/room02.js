@@ -1,16 +1,12 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
-import dat from "dat.gui";
 import gsap from "gsap";
 import { SpotLightHelper } from "three";
 
 // ----- 주제: glb 파일 애니메이션 효과 추가
 
-export default function example() {
+export default function room02() {
     
     const canvas = document.querySelector("#three-canvas");
     const loadingScreen = document.getElementById('loading-screen');
@@ -675,12 +671,14 @@ export default function example() {
         const intersects = raycaster.intersectObjects(scene.children);
 
         function scaleObject(objectName, scaleValue) {
-            gsap.to(room.getObjectByName(objectName).scale, { 
-                x: scaleValue, 
-                y: scaleValue, 
-                z: scaleValue, 
-                duration: 0.5
-            });
+            if (room && room.getObjectByName(objectName)) {
+                gsap.to(room.getObjectByName(objectName).scale, { 
+                    x: scaleValue, 
+                    y: scaleValue, 
+                    z: scaleValue, 
+                    duration: 0.5
+                });
+            }
         }
 
         function resetScales() {
