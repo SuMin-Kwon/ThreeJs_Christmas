@@ -138,21 +138,20 @@ export default function example() {
                         originalPosition.y,
                         originalPosition.z
                     );
-                    child.castShadow = true; // 그림자 캐스팅
-                    child.receiveShadow = true; // 그림자 수신
+                    child.castShadow = true;            
+                    child.receiveShadow = true;         
                 } else if(child.name === "Plane007"){
-                    child.castShadow = true; // 그림자 캐스팅
-                    child.receiveShadow = true; // 그림자 수신
+                    child.castShadow = true;            
+                    child.receiveShadow = true;
                     letter = child;
                 } else if(child.name === "Cube011"){
-                    child.castShadow = true; // 그림자 캐스팅
-                    child.receiveShadow = true; // 그림자 수신
+                    child.castShadow = true; 
+                    child.receiveShadow = true; 
                     box = child;
                 }
                  else {
-                    child.castShadow = true; // 그림자 캐스팅
-                    child.receiveShadow = true; // 그림자 수신
-                   
+                    child.castShadow = true; 
+                    child.receiveShadow = true;
                 }
             });
 
@@ -187,15 +186,15 @@ export default function example() {
                 } else {
                     if (child.isMesh) {
                         child.name = 'tree';
-                        child.castShadow = true; // 그림자 캐스팅
-                        child.receiveShadow = true; // 그림자 수신
+                        child.castShadow = true;
+                        child.receiveShadow = true; 
                     }
                 }
             });
         }
         tree = gltf.scene;
         tree.position.set(5, 0.5, -3);
-        tree.scale.copy(initialTreeScale); // 초기 스케일 설정
+        tree.scale.copy(initialTreeScale); // 초기  트리 스케일 설정
         scene.add(tree);
 
     }, undefined, (error) => {
@@ -249,7 +248,6 @@ export default function example() {
     
             gltf.scene.traverse((child) => {
 
-                //Cylinder
                 if (    child.name == "rebon" 
                     ||  child.name == "BezierCircle"
                     ||  child.name == "BezierCircle001"
@@ -272,15 +270,15 @@ export default function example() {
                     
                     cubeMaterial.color.set(gitbBoxColor[ramdomCnt].box);
                     cubeMaterial.emissive.set(gitbBoxColor[ramdomCnt].box);
-                    cubeMaterial.emissiveIntensity = 0.9; // 자발광 강도 설정
+                    cubeMaterial.emissiveIntensity = 0.9;   // 자체발광 강도 설정
                     
                     child.material = cubeMaterial;
                     if (child.isMesh) {
                         child.material = cubeMaterial;
                     }
                 } 
-                child.castShadow = true; // 그림자 캐스팅
-                child.receiveShadow = true; // 그림자 수신
+                child.castShadow = true;
+                child.receiveShadow = true;
                 
             });
         }
@@ -301,34 +299,25 @@ export default function example() {
     
 
     
-    // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
+    // 트리 밑 기둥 생성
     const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
-
-    // 갈색으로 색칠된 재질을 만듭니다.
-    const onematerial = new THREE.MeshBasicMaterial({ color: "#7C3E29" }); // 갈색 색상
-
-    // 기둥의 메쉬를 생성합니다.
+    const onematerial = new THREE.MeshBasicMaterial({ color: "#7C3E29" });
     const cylinder = new THREE.Mesh(onegeometry, onematerial);
     cylinder.position.set(5, 1.3, -2.5);
 
-    // scene에 기둥을 추가합니다.
     scene.add(cylinder);
 
-
+    // 벽 조명 추가
     const pointLight = new THREE.PointLight("#FF9E09", 10, 100); // 흰색 광원, 강도 1, 거리 100
-
-    // PointLight의 위치를 설정합니다.
-    pointLight.position.set(-5, 7, 1); // (x, y, z) 좌표
-
+    pointLight.position.set(-5, 7, 1);
     pointLight.castShadow = true;
     pointLight.receiveShadow = true;
-
-    // scene에 PointLight를 추가합니다.
     scene.add(pointLight);
 
     //const pointLightHelper = new THREE.PointLightHelper(pointLight);
     //scene.add(pointLightHelper);
 
+    // 벽 조명 추가2
     const pointLight2 = new THREE.PointLight("#FF9E09", 50, 100);
     pointLight2.position.set(2.2, 6, -3);
     scene.add(pointLight2);
@@ -373,13 +362,11 @@ export default function example() {
     });
 
     camera.add(listener);
-
-    // 오디오 객체를 씬에 추가
     scene.add(sound);
 
     // 사용자 인터랙션을 통한 재생/정지 버튼 생성
     const button = document.createElement('button');
-    button.innerText = "Pause Sound"; // 디폴트로 재생 중이므로 정지 버튼 활성화
+    button.innerText = "Pause Sound";   // 디폴트로 재생 중이므로 정지 버튼 활성화
     button.style.position = 'absolute';
     button.style.top = '10px';
     button.style.left = '10px';
@@ -419,11 +406,6 @@ export default function example() {
         const delta = clock.getDelta();
 
         renderer.setAnimationLoop(draw);
-
-        // 별빛 회전 효과 추가
-        //stars.rotation.x += 0.001;
-        //stars.rotation.y += 0.001;
-
         renderer.render(scene, camera);
         
         //각 눈송이마다 이동 처리
@@ -444,9 +426,6 @@ export default function example() {
         renderer.render(scene, camera);
     }
 
-    // 물체의 원래 위치를 저장하기 위한 맵
-    const originalPositions = new Map();
-
     // 이벤트
     window.addEventListener("resize", setSize);
 
@@ -458,7 +437,6 @@ export default function example() {
         canvas.style.display = 'block';
     }
 
-    //window.addEventListener('click', onDocumentClick);
     document.addEventListener('mousedown', onDocumentMouseDown, false);
     document.addEventListener('mousemove', onMouseMove, false);
     document.addEventListener('mouseup', onDocumentMouseUp, false);
@@ -661,7 +639,6 @@ export default function example() {
 
    
     document.addEventListener('mousedown', onDocumentMouseDown, false);
-    //document.addEventListener('mousemove', onDocumentMouseMove, onMouseMove);
     document.addEventListener('mouseup', onDocumentMouseUp, false);
 
     // resetBtn 클릭 이벤트 핸들러 추가
