@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
 import dat from "dat.gui";
 import gsap from "gsap";
 import { SpotLightHelper } from "three";
@@ -168,6 +171,7 @@ export default function example() {
     });
 
     let tree;
+    let initialTreeScale = new THREE.Vector3(0.5, 0.5, 0.5); // 트리 객체의 초기 스케일
     gltfLoader.load("/models/tree3.glb", (gltf) => {
 
         if (gltf.scene) {
@@ -179,24 +183,38 @@ export default function example() {
                         ||child.name === "Cylinder001"
                         ||child.name.includes("Cube") 
                 ) {
-
                     child.visible = false;
                 } else {
-                    child.castShadow = true; // 그림자 캐스팅
-                    child.receiveShadow = true; // 그림자 수신
+                    if (child.isMesh) {
+                        child.name = 'tree';
+                        child.castShadow = true; // 그림자 캐스팅
+                        child.receiveShadow = true; // 그림자 수신
+                    }
                 }
-                   
             });
         }
         tree = gltf.scene;
         tree.position.set(5, 0.5, -3);
-        tree.scale.set(0.5, 0.5, 0.5);
+        tree.scale.copy(initialTreeScale); // 초기 스케일 설정
         scene.add(tree);
 
     }, undefined, (error) => {
         console.error('GLTF 파일 로드 오류', error);
     });
 
+    /*
+    let carpet;
+    //let initialTreeScale = new THREE.Vector3(0.5, 0.5, 0.5); // 트리 객체의 초기 스케일
+    gltfLoader.load("/models/box.gltf", (gltf) => {
+        carpet = gltf.scene;
+        carpet.position.set(5, 1, 0);
+        carpet.scale.set(10, 10, 10);
+        scene.add(carpet);
+
+    }, undefined, (error) => {
+        console.error('GLTF 파일 로드 오류', error);
+    });
+    */
 
     let giftBox;
     const letterImages = [
@@ -280,6 +298,9 @@ export default function example() {
         console.error('GLTF 파일 로드 오류', error);
     });
 
+    
+
+    
     // CylinderGeometry를 이용하여 기둥의 형태를 정의합니다.
     const onegeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
 
@@ -305,15 +326,15 @@ export default function example() {
     // scene에 PointLight를 추가합니다.
     scene.add(pointLight);
 
-    const pointLightHelper = new THREE.PointLightHelper(pointLight);
-    scene.add(pointLightHelper);
+    //const pointLightHelper = new THREE.PointLightHelper(pointLight);
+    //scene.add(pointLightHelper);
 
     const pointLight2 = new THREE.PointLight("#FF9E09", 50, 100);
     pointLight2.position.set(2.2, 6, -3);
     scene.add(pointLight2);
 
-    const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
-    scene.add(pointLightHelper2);
+    //const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
+    //scene.add(pointLightHelper2);
 
     // 눈송이효과
     const snowflakes = [];
@@ -379,14 +400,16 @@ export default function example() {
     });
 
     //AxesHelper;
-    const axesHelper = new THREE.AxesHelper(100);
-    scene.add(axesHelper);
+    //const axesHelper = new THREE.AxesHelper(100);
+    //scene.add(axesHelper);
 
     // Dat GUI
+    /*
     const gui = new dat.GUI();
     gui.add(camera.position, "x", -10, 100, 0.1).name("카메라 X");
     gui.add(camera.position, "y", -10, 100, 0.1).name("카메라 Y");
     gui.add(camera.position, "z", -10, 100, 0.1).name("카메라 Z");
+    */
 
 
     // 그리기
@@ -662,92 +685,109 @@ export default function example() {
         }
     });
 
-
+    let lastEmissiveObject = null;
     function onMouseMove(event) {
         isDragging = true;
 
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    
+        
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(scene.children);
-    
+
+        function scaleObject(objectName, scaleValue) {
+            gsap.to(room.getObjectByName(objectName).scale, { 
+                x: scaleValue, 
+                y: scaleValue, 
+                z: scaleValue, 
+                duration: 0.5
+            });
+        }
+
+        function resetScales() {
+            const resetObjects = [
+                { name: "Cube004", scale: 100 },
+                { name: "Cube011", scale: 100 },
+                { name: "Plane011", scale: 70 },
+                { name: "Plane009", scale: 100 },
+                { name: "Plane010", scale: 100 },
+                { name: "book001", scale: 100 },
+                { name: "chair", scale: 90 }
+            ];
+            
+            resetObjects.forEach(obj => scaleObject(obj.name, obj.scale));
+            if (tree) {
+                gsap.to(tree.scale, { 
+                    x: initialTreeScale.x, 
+                    y: initialTreeScale.y, 
+                    z: initialTreeScale.z, 
+                    duration: 0.5
+                });
+            }
+            // 발광 효과 해제
+            if (lastEmissiveObject) {
+                applyEmissiveEffect(lastEmissiveObject, 0x000000, 0);
+                lastEmissiveObject = null; // 효과 제거 후 초기화
+            }
+        }
+
+        
+
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
             console.log(intersectedObject.name);
-            
-            if (intersectedObject.name === "Cube004" || intersectedObject.name.includes("Cube008") ) {
-                console.log(room.getObjectByName("Cube011").position);
-                console.log(room.getObjectByName("Cube004").position);
-                console.log("********************************");
-                gsap.to(room.getObjectByName("Cube004").scale, { 
-                    x: 120, 
-                    y: 120, 
-                    z: 120, 
-                    duration: 0.3 
-                });
-                gsap.to(room.getObjectByName("Cube011").scale, { 
-                    x: 120, 
-                    y: 120, 
-                    z: 120, 
-                    duration: 0.3 
-                });
-                gsap.to(room.getObjectByName("Cube004").position, { 
-                    y: room.getObjectByName("Cube004").position.y + 2,  
-                    duration: 0.1 
-                });
-                gsap.to(room.getObjectByName("Cube011").position, { 
-                    y: room.getObjectByName("Cube011").position.y + 2,  
-                    duration: 0.1 
-                });
-            } else {
-                // 마우스가 어떤 물체에도 걸리지 않으면, 확대된 물체를 원래 크기로 되돌림
-                gsap.to(room.getObjectByName("Cube004").scale, { 
-                    x: 100, 
-                    y: 100, 
-                    z: 100, 
-                    duration: 0.3 
-                });
-                gsap.to(room.getObjectByName("Cube011").scale, { 
-                    x: 100, 
-                    y: 100, 
-                    z: 100, 
-                    duration: 0.3 
-                });
-                gsap.to(room.getObjectByName("Cube004").position, { 
-                    y: 22.68473,  
-                    duration: 0.1 
-                });
-                gsap.to(room.getObjectByName("Cube011").position, { 
-                    y: 26.871553,  
-                    duration: 0.1 
-                });
+            resetScales();
+
+            if (intersectedObject.name === "Cube004" || intersectedObject.name.includes("Cube008")) {
+                scaleObject("Cube004", 110);
+                scaleObject("Cube011", 110);
             } 
-        } else {
-            // 마우스가 어떤 물체에도 걸리지 않으면, 확대된 물체를 원래 크기로 되돌림
-            gsap.to(room.getObjectByName("Cube004").scale, { 
-                x: 100, 
-                y: 100, 
-                z: 100, 
-                duration: 0.3 
-            });
-            gsap.to(room.getObjectByName("Cube011").scale, { 
-                x: 100, 
-                y: 100, 
-                z: 100, 
-                duration: 0.3 
-            });
-            gsap.to(room.getObjectByName("Cube004").position, { 
-                y: 22.68473,  
-                duration: 0.1 
-            });
-            gsap.to(room.getObjectByName("Cube011").position, { 
-                y: 26.871553,  
-                duration: 0.1 
-            });
+            else if (intersectedObject.name.includes("Plane012")) {
+                
+                scaleObject("Plane011", 80);
+            }
+            else if (intersectedObject.name === "Plane009" || intersectedObject.name === "Plane010") {
+                scaleObject("Plane009", 110);
+                scaleObject("Plane010", 110);
+            }
+            else if (intersectedObject.name === "chair") {
+                scaleObject("chair", 100);
+                applyEmissiveEffect(intersectedObject, 0xffd700, 0.05);
+                lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
+            }
+            else if (intersectedObject.name === "tree") {
+                // 트리 객체 위에 마우스가 있을 때
+                gsap.to(tree.scale, { 
+                    x: initialTreeScale.x + 0.05, 
+                    y: initialTreeScale.y + 0.05, 
+                    z: initialTreeScale.z + 0.05, 
+                    duration: 0.5
+                });
+                applyEmissiveEffect(intersectedObject, 0xffd700, 0.05); // 노란색 발광 효과
+                lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
+                //createOutline(intersectedObject);
+            }
+            else if (intersectedObject.name.includes("book") ) {
+                scaleObject("book001", 110);
+                applyEmissiveEffect(intersectedObject, 0xffd700, 0.05);
+                lastEmissiveObject = intersectedObject; // 발광 적용된 객체 추적
+            }
+        } 
+        else {
+            resetScales();
         }
+    }
+
+    // 객체 발광 효과
+    function applyEmissiveEffect(object, emissiveColor, intensity) {
+        object.traverse((child) => {
+            if (child.isMesh) {
+                child.material.emissive = new THREE.Color(emissiveColor);
+                child.material.emissiveIntensity = intensity;
+            }
+        });
     }
 
     // 우클릭시 초기화 시점으로 이동
