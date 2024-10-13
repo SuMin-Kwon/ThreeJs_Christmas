@@ -95,7 +95,6 @@ export default function room02() {
             gltf.scene.castShadow = true;
     
             gltf.scene.traverse((child) => {
-                //console.log(child);
                 if (child.name === "Plane013"
                         //||child.name === "Plane009"   //원통
                         || child.name === "Cube005"     //벽돌
@@ -196,20 +195,6 @@ export default function room02() {
         console.error('GLTF 파일 로드 오류', error);
     });
 
-    /*
-    let carpet;
-    //let initialTreeScale = new THREE.Vector3(0.5, 0.5, 0.5); // 트리 객체의 초기 스케일
-    gltfLoader.load("/models/box.gltf", (gltf) => {
-        carpet = gltf.scene;
-        carpet.position.set(5, 1, 0);
-        carpet.scale.set(10, 10, 10);
-        scene.add(carpet);
-
-    }, undefined, (error) => {
-        console.error('GLTF 파일 로드 오류', error);
-    });
-    */
-
     let giftBox;
     const letterImages = [
         '/images/letters/책상위민지.png',
@@ -218,10 +203,12 @@ export default function room02() {
         '/images/letters/해적왕루피.png'
     ];
     const giftBoxPosition = [
-        { "x" : 0.3 , "y" : 2.55 , "z" : -1.6 }, // 책상위 좌표
-        { "x" : 4   , "y" : 1    , "z" : 0    }, // 트리옆
-        { "x" : -4.5, "y" : 2.55 , "z" : -1   }, // 술통 위
-        { "x" : -4.5, "y" : 2.55 , "z" : -1   }, // 보물상자안에
+        { "location" : "책상"    , "x" : 0.3 , "y" : 2.55 , "z" : -1.6 }, // 책상위 좌표
+        { "location" : "트리"    , "x" : 4   , "y" : 1    , "z" : 0    }, // 트리옆
+        { "location" : "큰술통"  , "x" : -4.5, "y" : 3    , "z" : -2   }, // 큰술통 위
+        { "location" : "보물상자", "x" : -4.3, "y" : 3.2  , "z" : 2.7  }, // 보물상자안에
+        { "location" : "작은술통", "x" : -4.5, "y" : 2.55 , "z" : -0.3 }, // 작은술통 위
+        { "location" : "의자"    , "x" : -0.8, "y" : 2    , "z" : 0.3  }, // 의자위에
     ];
     
     const gitbBoxColor = [
@@ -231,9 +218,9 @@ export default function room02() {
         {"box" : "black"  , "rebon" : "gray" }
     ]
     
-    const ramdomCnt = Math.floor(Math.random() * 4);
+    // 분기 처리
+    const ramdomCnt = Math.floor(Math.random() * 4); // 핑크면 0, 노랑이면 1, 보라면 2, 검정이면 3
     let rsltYn = "Y";
-    console.log("랜덤 수 : " +ramdomCnt );
     let gameCnt = 3;
 
     gltfLoader.load("/models/giftBox_joinSpare.glb", (gltf) => {
@@ -250,7 +237,6 @@ export default function room02() {
                     ||  child.name == "BezierCircle003"  
                 ) {
                     const rebonMaterial = child.material.clone();
-                    console.log("리본 색깔은 : "+gitbBoxColor[ramdomCnt].rebon);
                     rebonMaterial.color.set(gitbBoxColor[ramdomCnt].rebon);
                     rebonMaterial.emissive.set(gitbBoxColor[ramdomCnt].rebon);
                     rebonMaterial.emissiveIntensity = 0.9;
@@ -260,9 +246,7 @@ export default function room02() {
                         child.material = rebonMaterial;
                     }
                 } else if (child.name == "cube" ){
-                    const cubeMaterial = child.material.clone();
-                    console.log("박스 색깔은 : "+gitbBoxColor[ramdomCnt].box);
-                    
+                    const cubeMaterial = child.material.clone();                    
                     cubeMaterial.color.set(gitbBoxColor[ramdomCnt].box);
                     cubeMaterial.emissive.set(gitbBoxColor[ramdomCnt].box);
                     cubeMaterial.emissiveIntensity = 0.9;   // 자체발광 강도 설정
@@ -278,12 +262,8 @@ export default function room02() {
             });
         }
         giftBox = gltf.scene;
-        //giftBox.position.set(0.3, 2.55, -1.6);    // 책상위 좌표
-        //giftBox.position.set(4, 1, 0);            // 트리옆에
-        //giftBox.position.set(-4.5, 2.55, -1);     // 술통 위에
-        // 바닥을 클릭했을때는 바닥 좌표위에 올라가도록 설정 필요
-
-        giftBox.scale.set(0.7, 0.7, 0.7);
+        giftBox.scale.set(0.6, 0.6, 0.6);
+        //giftBox.position.set(giftBoxPosition[4].x, giftBoxPosition[4].y, giftBoxPosition[4].z);
         giftBox.visible = false;
         scene.add(giftBox);
 
@@ -445,19 +425,13 @@ export default function room02() {
         mouseDownTime = Date.now();
     }
 
-    // 마우스 무브 이벤트 핸들러
-    function onDocumentMouseMove(event) {
-        isDragging = true;
-    }
-
     // 마우스 업 이벤트 핸들러
     function onDocumentMouseUp(event) {
         if (!isDragging) {
-            // 짧은 클릭인 경우에만 onDocumentClick 호출
             onDocumentClick(event);
         } else {
             const clickDuration = Date.now() - mouseDownTime;
-            if (clickDuration < 200) { // 200ms 이하인 경우 짧은 클릭으로 간주
+            if (clickDuration < 200) { // 0.2초 이하인 경우 짧은 클릭으로 간주
                 onDocumentClick(event);
             }
         }
@@ -475,32 +449,34 @@ export default function room02() {
             return; 
         }
 
-        // 마우스의 클릭 위치를 정규화된 장치 좌표로 변환
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-        // Raycaster를 생성하여 클릭한 객체를 찾음
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, camera);
 
-        // 클릭된 객체들을 저장할 배열
         const intersects = raycaster.intersectObject(room, true);
 
         // 클릭된 객체가 있을 경우
         if (intersects.length > 0) {
             const clickedObject = intersects[0].object;
 
-            console.log(intersects[0].object.name);
-
             // 클릭된 객체의 이름이 "pngfind.com-medieval-banner-png-1287972"인지 확인
             if (clickedObject.name === "Plane007") {
                 // 이미지를 보여주는 함수 호출
                 showImageFullScreen(letterImages[ramdomCnt], 'default');
-            } else if (clickedObject.name === "Cube004"        || clickedObject.name.includes("Cube008") 
-                    || clickedObject.name.includes("Cube007")  || clickedObject.name.includes("Plane006") 
-                    || clickedObject.name.includes("Plane005") || clickedObject.name.includes("Plane007") 
-                    || clickedObject.name.includes("Plane009")) {
+            } else if (clickedObject.name === "Cube004"         // 보물상자
+                    || clickedObject.name.includes("Cube008")   // 보물상자
+                    || clickedObject.name.includes("Cube007")   // 트리
+                    || clickedObject.name.includes("tree")      // 트리
+                    || clickedObject.name.includes("Plane006")  // 책상
+                    || clickedObject.name.includes("Plane009")  // 큰술통
+                    || clickedObject.name.includes("Plane010")  // 큰술통
+                    || clickedObject.name.includes("Plane011")  
+                    || clickedObject.name.includes("Plane012")  // 작은술통
+                    || clickedObject.name.includes("chair")     // 의자
+                ) {
                 lastClickedObjectName = clickedObject;
                 showImageFullScreen('/images/question01.png', 'custom');
             }
@@ -571,7 +547,6 @@ export default function room02() {
 
             // "Yes" 버튼 클릭 시 동작
             yesButton.addEventListener('click', () => {
-                console.log('Yes button clicked');
                 handleYesButtonClick();
                 cleanup(imageElement, yesButton, noButton, resizeHandler);
             });
@@ -604,39 +579,49 @@ export default function room02() {
         const restartBtn = document.getElementById('restartBtn');
         const loadingScreen = document.getElementById('loading-screen');
         const canvas = document.getElementById('three-canvas');
-
-        if (lastClickedObjectName && lastClickedObjectName.name.includes("Plane009")) {
-            rsltYn = "Y";
-            giftBox.visible = true;
-            giftBox.position.set(giftBoxPosition[2].x, giftBoxPosition[2].y, giftBoxPosition[2].z);
-
-            setTimeout(() => {
-                loadingImage.src = '/images/giftGivingSuccess.gif';
-                loadingText.style.display = 'none';
-                loadingScreen.style.display = 'block';
-                resetBtn.style.display = 'block';
-                restartBtn.style.display = 'block';
-                canvas.style.display = 'none';
-                console.log("Buttons should be visible");
-            }, 2000);
-        } else {
-            rsltYn = "N";
-            gameCnt--;
-            console.log("남은 횟수 : " + gameCnt);
-
-            giftBox.visible = true;
-            giftBox.position.set(giftBoxPosition[1].x, giftBoxPosition[1].y, giftBoxPosition[1].z);
-
-            setTimeout(() => {
-                loadingImage.src = '/images/giftGivingFail.gif';
-                loadingText.style.display = 'none';
-                loadingScreen.style.display = 'block';
-                resetBtn.style.display = 'block';
-                restartBtn.style.display = 'block';
-                canvas.style.display = 'none';
-                console.log("Buttons should be visible");
-            }, 2000);
+        let resultImg = "Fail";
+        let positionCnt; // 위치값 호출 변수
+        let resetBtnStyle = "block";
+        
+        // 선물상자 위치 선정
+        if (lastClickedObjectName){
+            if(lastClickedObjectName.name.includes("Plane006")){            // 책상
+                positionCnt = 0;
+            } else if(lastClickedObjectName.name.includes("Cube007")        // 트리
+                   || lastClickedObjectName.name === "tree"){
+                positionCnt = 1;
+            } else if(lastClickedObjectName.name.includes("Plane009")
+                    || lastClickedObjectName.name.includes("Plane010")){    // 큰술통
+                positionCnt = 2;
+            } else if(lastClickedObjectName.name.includes("Cube008")){      // 보물상자
+                positionCnt = 3;
+            } else if(lastClickedObjectName.name.includes("Plane012")){     // 작은술통
+                positionCnt = 4;
+            } else if(lastClickedObjectName.name === "chair"){              // 의자
+                positionCnt = 5;
+            } 
+            giftBox.position.set(giftBoxPosition[positionCnt].x, giftBoxPosition[positionCnt].y, giftBoxPosition[positionCnt].z);
         }
+        
+        // 선물, 선물 위치 성공/실패 처리 
+        if (positionCnt === ramdomCnt) {
+            rsltYn = "Y";
+            resultImg = "Success";
+            resetBtnStyle = "none";
+        }
+        else {
+            rsltYn = "N";
+        }
+        gameCnt--;
+        giftBox.visible = true;
+        setTimeout(() => {
+            loadingImage.src = '/images/giftGiving'+ resultImg +'.gif';
+            loadingText.style.display = 'none';
+            loadingScreen.style.display = 'block';
+            resetBtn.style.display = resetBtnStyle;
+            restartBtn.style.display = 'block';
+            canvas.style.display = 'none';
+        }, 2000);
     }
 
    
@@ -652,7 +637,7 @@ export default function room02() {
         let countCnt = document.getElementById('countCnt');
         countCnt.innerText = gameCnt;
         if(rsltYn === "Y" || gameCnt < 1){
-            location.reload();
+            location.href = "/open.html";
         } else {
             resetBtn.style.display = 'none';
             restartBtn.style.display = 'none';
@@ -716,13 +701,13 @@ export default function room02() {
 
         function resetScales() {
             const resetObjects = [
-                { name: "Cube004", scale: 100 },
-                { name: "Cube011", scale: 100 },
-                { name: "Plane011", scale: 70 },
+                { name: "Cube004" , scale: 100 },
+                { name: "Cube011" , scale: 100 },
+                { name: "Plane011", scale: 70  },
                 { name: "Plane009", scale: 100 },
                 { name: "Plane010", scale: 100 },
-                { name: "book001", scale: 100 },
-                { name: "chair", scale: 90 }
+                { name: "book001" , scale: 100 },
+                { name: "chair"   , scale: 90  }
             ];
             
             resetObjects.forEach(obj => scaleObject(obj.name, obj.scale));
@@ -749,23 +734,17 @@ export default function room02() {
 
         // 발광 효과와 크기 조정 해제 시점을 관리하는 함수
         function scheduleReset() {
-            // 이전 타이머가 있으면 취소
             if (resetTimeout) {
                 clearTimeout(resetTimeout);
             }
-
-            // 3초 후에 발광 및 크기 해제 실행
             resetTimeout = setTimeout(() => {
                 resetScales();
             }, 3000);
         }
-
         
 
         if (intersects.length > 0) {
-            const intersectedObject = intersects[0].object;
-            console.log(intersectedObject.name);
-            
+            const intersectedObject = intersects[0].object;            
             resetScales();
 
             if (intersectedObject.name === "Cube004" || intersectedObject.name.includes("Cube008")) {
