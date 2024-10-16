@@ -133,3 +133,79 @@ body {
   transform: scale(1.2); /* 버튼 크기를 1.2배로 키움 */
   transition: transform 0.3s ease; /* 부드러운 크기 변경 효과 */
 }
+
+/* 게임 설명 css 추가 */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
+  z-index: 998; /* gameDesc 아래에 배치되도록 z-index 설정 */
+  display: none; /* 처음엔 숨김 */
+}
+
+#gameDesc {
+  position: absolute; /* 화면에 고정 위치를 설정 */
+  top: 50%; /* 세로 중앙 정렬 */
+  left: 50%; /* 가로 중앙 정렬 */
+  text-align: center;
+  transform: translate(-50%, -50%); /* 정렬 위치 보정 */
+  z-index: 999; /* z-index를 높여서 3D 캔버스 위에 표시되도록 설정 */
+  pointer-events: none; /* 클릭 등의 이벤트를 막음 (선택 사항) */
+  display: none;
+}
+
+#gameDescImg {
+  width: 500px; /* 이미지 크기 조정 (필요 시) */
+  height: auto; /* 이미지 비율 유지 */
+  display: block;
+  margin: 0 auto;
+  position: relative;
+}
+
+#startButton {
+  position: absolute;
+  bottom: 10px; /* 이미지 하단에서 10px 위에 버튼 위치 */
+  left: 50%; /* 가로 중앙 정렬 */
+  transform: translateX(-50%); /* 버튼을 정확히 중앙에 위치시키기 위한 보정 */
+  background-color: #ff6666;
+  border: none;
+  border-radius: 15px; /* 둥근 모서리 */
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  transition: background-color 0.1s ease, box-shadow 0.1s ease; /* 그림자와 색 변화 부드럽게 */
+  pointer-events: auto; /* 버튼은 클릭 가능 */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* 그림자 추가 */
+}
+
+#startButton:hover {
+  background-color: #FF3333; /* 마우스 오버 시 더 밝은 빨간색 */
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4); /* 마우스 오버 시 그림자 강조 */
+}
+
+/* Skip 버튼 스타일 */
+#skipButton {
+  position: absolute;
+  top: 10px; /* 이미지 상단에서 10px 아래 */
+  right: 20px; /* 이미지 오른쪽에서 10px 떨어진 위치 */
+  background-color: gray;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  padding: 5px 15px;
+  cursor: pointer;
+  transition: background-color 0.1s ease, box-shadow 0.1s ease;
+  pointer-events: auto; /* 버튼 클릭 가능 */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* 그림자 추가 */
+}
+
+#skipButton:hover {
+  background-color: #cccccc; /* 마우스 오버 시 더 밝은 회색 */
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4); /* 그림자 강조 */
+}
+
+/* 게임 설명 css 추가 끝 */

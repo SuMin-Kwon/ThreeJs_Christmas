@@ -9,6 +9,10 @@ export default function room02() {
     
     const canvas = document.querySelector("#three-canvas");
     const loadingScreen = document.getElementById('loading-screen');
+    const gameDesc = document.getElementById('gameDesc');
+    const overlay = document.getElementById('overlay');
+    const skipButton = document.getElementById('skipButton');
+
 
     // GIF가 일정 시간 동안 표시된 후 canvas가 나타나도록 설정
     /*
@@ -410,6 +414,10 @@ export default function room02() {
     function hideLoadingScreen() {
         loadingScreen.style.display = 'none';
         canvas.style.display = 'block';
+
+        gameDesc.style.display = 'block';
+        overlay.style.display = 'block';
+        
     }
 
     document.addEventListener('mousedown', onDocumentMouseDown, false);

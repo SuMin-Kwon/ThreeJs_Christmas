@@ -22,5 +22,37 @@
 		<button id="restartBtn">처음으로</button>
 	</div>
   <div id="resultCnt">남은 횟수 : <span id="countCnt">3</span></div>
+  <div id="overlay"></div>
+  <div id="gameDesc">
+      <img id="gameDescImg" src="./images/game_desc.png" alt="게임설명">
+      <button id="startButton" order="1">게임 시작</button>
+      <button id="skipButton">Skip</button>
+  </div>
+
+  <script>
+      const gameDesc = document.getElementById('gameDesc');
+      const gameDescImg = document.getElementById('gameDescImg');
+      const overlay = document.getElementById('overlay');
+      const skipButton = document.getElementById('skipButton');
+      const startButton = document.getElementById('startButton');
+
+      // gameDesc가 보일 때 overlay도 같이 보이게
+
+      // Skip 버튼 클릭 시 gameDesc와 overlay를 숨김
+      skipButton.addEventListener('click', function() {
+        gameDesc.style.display = 'none'; 
+        overlay.style.display = 'none';
+      });
+
+      startButton.addEventListener('click', function() {
+        if(startButton.getAttribute("order") === "1"){
+          gameDescImg.src = "./images/movement.png";
+          startButton.setAttribute("order", "2");
+        } else {
+          gameDesc.style.display = 'none';
+          overlay.style.display = 'none';
+        }
+      });
+  </script>
 </body>
 </html>
