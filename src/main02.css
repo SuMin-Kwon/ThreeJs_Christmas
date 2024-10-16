@@ -144,6 +144,7 @@ body {
   background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
   z-index: 998; /* gameDesc 아래에 배치되도록 z-index 설정 */
   display: none; /* 처음엔 숨김 */
+  pointer-events: auto;
 }
 
 #gameDesc {
@@ -155,6 +156,7 @@ body {
   z-index: 999; /* z-index를 높여서 3D 캔버스 위에 표시되도록 설정 */
   pointer-events: none; /* 클릭 등의 이벤트를 막음 (선택 사항) */
   display: none;
+  pointer-events: auto;
 }
 
 #gameDescImg {

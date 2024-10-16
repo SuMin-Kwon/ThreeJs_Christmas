@@ -25,7 +25,7 @@
   <div id="overlay"></div>
   <div id="gameDesc">
       <img id="gameDescImg" src="./images/game_desc.png" alt="게임설명">
-      <button id="startButton" order="1">게임 시작</button>
+      <button id="startButton" order="1">Continue</button>
       <button id="skipButton">Skip</button>
   </div>
 
@@ -42,13 +42,18 @@
       skipButton.addEventListener('click', function() {
         gameDesc.style.display = 'none'; 
         overlay.style.display = 'none';
+        gameDesc.style.pointerEvents = 'none';
+        overlay.style.pointerEvents = 'none';
       });
 
       startButton.addEventListener('click', function() {
         if(startButton.getAttribute("order") === "1"){
           gameDescImg.src = "./images/movement.png";
           startButton.setAttribute("order", "2");
+          startButton.textContent = "Game Start";
         } else {
+          gameDesc.style.pointerEvents = 'none';
+          overlay.style.pointerEvents = 'none';
           gameDesc.style.display = 'none';
           overlay.style.display = 'none';
         }

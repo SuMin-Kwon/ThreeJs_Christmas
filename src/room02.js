@@ -12,6 +12,7 @@ export default function room02() {
     const gameDesc = document.getElementById('gameDesc');
     const overlay = document.getElementById('overlay');
     const skipButton = document.getElementById('skipButton');
+    const startButton = document.getElementById('startButton');
 
 
     // GIF가 일정 시간 동안 표시된 후 canvas가 나타나도록 설정
@@ -453,8 +454,12 @@ export default function room02() {
         event.preventDefault();
 
         // 우클릭이면 아무 동작도 X
-        if (event.button === 2) {
+        if (event.button === 2 && window.getComputedStyle(gameDesc).display == "block") {
             return; 
+        }
+
+        if (event.target === skipButton || event.target === startButton) {
+            return;
         }
 
         const mouse = new THREE.Vector2();
